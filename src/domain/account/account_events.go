@@ -4,26 +4,20 @@ import (
 	"credens/src/shared/domain/bus"
 )
 
+type AccountCreatedData struct {
+	Id       string
+	Name     string
+	Username string
+}
+
 type AccountCreated struct {
 	bus.Event
-	id       string
-	name     string
-	username string
+	Data AccountCreatedData
 }
 
 func NewAccountCreated(id string, name string, username string) *AccountCreated {
 	return &AccountCreated{
 		*bus.NewEvent(id, "account_created"),
-		id,
-		name,
-		username,
+		AccountCreatedData{id, name, username},
 	}
-}
-
-func (event *AccountCreated) Name() string {
-	return event.name
-}
-
-func (event *AccountCreated) Username() string {
-	return event.username
 }

@@ -16,7 +16,7 @@ func NewAccount(id AccountId, name AccountName, username AccountUsername, passwo
 	account := &Account{id: id, name: name, username: username, password: password}
 
 	account.RecordDomainEvent(
-		&NewAccountCreated(id.Value(), name.Value(), username.Value()).Event,
+		&NewAccountCreated(id.Value(), name.Value(), username.Value()).Event, // TODO: Test
 	)
 
 	return account
