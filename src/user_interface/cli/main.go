@@ -5,11 +5,8 @@ func main() {
 
 	kernel := NewKernel(config.Env, config.Debug)
 
-	kernel.Run(handler(&kernel.Container))
-}
+	commandName := "hello"
+	args := []string{commandName, "Go"}
 
-func handler(container *Container) func() {
-	return func() {
-		container.Logger.Log("Hello world!")
-	}
+	kernel.Run(args...)
 }
