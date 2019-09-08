@@ -5,17 +5,17 @@ import (
 )
 
 type AggregateRoot struct {
-	domainEvents []*bus.Event
+	domainEvents []bus.Event
 }
 
-func (aggregateRoot *AggregateRoot) PullDomainEvents() []*bus.Event {
+func (aggregateRoot *AggregateRoot) PullDomainEvents() []bus.Event {
 	events := aggregateRoot.domainEvents
 
-	aggregateRoot.domainEvents = []*bus.Event{}
+	aggregateRoot.domainEvents = []bus.Event{}
 
 	return events
 }
 
 func (aggregateRoot *AggregateRoot) RecordDomainEvent(event *bus.Event) {
-	aggregateRoot.domainEvents = append(aggregateRoot.domainEvents, event)
+	aggregateRoot.domainEvents = append(aggregateRoot.domainEvents, *event)
 }

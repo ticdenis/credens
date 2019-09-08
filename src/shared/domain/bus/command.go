@@ -32,7 +32,17 @@ type CommandBus interface {
 	Dispatch(command Command)
 }
 
-type CommandHandler interface {
-	SubscribedTo() string
-	Execute(command Command)
+type CommandHandler struct {
+	commandName string
+}
+
+func NewCommandHandler(commandName string) *CommandHandler {
+	return &CommandHandler{commandName}
+}
+
+func (handler *CommandHandler) SubscribedTo() string {
+	return handler.commandName
+}
+
+func (handler *CommandHandler) Execute(command Command) {
 }

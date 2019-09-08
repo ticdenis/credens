@@ -13,7 +13,7 @@ type Event struct {
 	eventOccurredOn int64
 }
 
-func NewDomainEvent(aggregateId string, eventName string) *Event {
+func NewEvent(aggregateId string, eventName string) *Event {
 	return &Event{
 		value_object.UUID(nil).Value(),
 		"event",
