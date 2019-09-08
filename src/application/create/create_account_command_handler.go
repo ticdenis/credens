@@ -8,29 +8,32 @@ import (
 type CreateAccountCommandHandler struct {
 	bus.CommandHandler
 	accountRepository account.AccountRepository
+	accountBuilder    account.AccountBuilder
 	eventPublisher    bus.EventPublisher
 }
 
 func NewCreateAccountCommandHandler(
 	accountRepository account.AccountRepository,
+	accountBuilder account.AccountBuilder,
 	eventPublisher bus.EventPublisher,
 ) *CreateAccountCommandHandler {
 	return &CreateAccountCommandHandler{
 		*bus.NewCommandHandler("create_account"),
 		accountRepository,
+		accountBuilder,
 		eventPublisher,
 	}
 }
 
 func (handler *CreateAccountCommandHandler) Execute(command CreateAccountCommand) {
-	account := account.NewAccount(
-		account.NewAccountId(command.Data.Id),
-		account.NewAccountName(command.Data.Name),
-		account.NewAccountUsername(command.Data.Username),
-		account.NewAccountPassword(command.Data.Password),
+	aggregate := handler.accountBuilder.Build(
+		command.Data.Id,
+		command.Data.Name,
+		command.Data.Username,
+		command.Data.Password,
 	)
 
-	handler.accountRepository.Add(*account)
+	handler.accountRepository.Add(*aggregate)
 
-	handler.eventPublisher.Publish(account.PullDomainEvents()...)
+	handler.eventPublisher.Publish(aggregate.PullDomainEvents()...)
 }
