@@ -17,14 +17,10 @@ type Container struct {
 }
 
 func NewKernel(environment config.Env, debug config.Debug) *Kernel {
-	container := &Container{
-		logrus.NewLogger(),
-	}
-
 	return &Kernel{
 		environment,
 		debug,
-		container,
+		makeContainer(environment, debug),
 	}
 }
 
@@ -33,5 +29,11 @@ func (kernel *Kernel) Run(req interface{}) {
 		kernel.container.Logger.Log("HTTP should execute this req: " + req.(string))
 	} else {
 		kernel.container.Logger.Log("Hello from HTTP!")
+	}
+}
+
+func makeContainer(environment config.Env, debug config.Debug) *Container {
+	return &Container{
+		logrus.NewLogger(),
 	}
 }

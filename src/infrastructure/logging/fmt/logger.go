@@ -1,6 +1,7 @@
 package fmt
 
 import (
+	"credens/src/infrastructure/logging"
 	"fmt"
 )
 
@@ -11,6 +12,6 @@ func (logger *Logger) Log(msg string) {
 	fmt.Printf(msg)
 }
 
-func NewLogger() *Logger {
-	return &Logger{}
+func NewLogger() logging.Logger {
+	return new(Logger)
 }

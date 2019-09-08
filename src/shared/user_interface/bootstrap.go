@@ -1,4 +1,4 @@
-package main
+package user_interface
 
 import (
 	"credens/src/shared/user_interface/config"

@@ -1,6 +1,7 @@
 package logrus
 
 import (
+	"credens/src/infrastructure/logging"
 	"github.com/sirupsen/logrus"
 )
 
@@ -11,6 +12,6 @@ func (logger *Logger) Log(msg string) {
 	logrus.Println(msg)
 }
 
-func NewLogger() *Logger {
-	return &Logger{}
+func NewLogger() logging.Logger {
+	return new(Logger)
 }

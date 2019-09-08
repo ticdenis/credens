@@ -13,40 +13,41 @@ type Kernel struct {
 	env       config.Env
 	debug     config.Debug
 	container *Container
-	rootCmd   *cobra.Command
 }
 
 type Container struct {
-	Logger   logging.Logger
-	Commands []*cobra.Command
+	Logger  logging.Logger
+	rootCmd cobra.Command
 }
 
 func NewKernel(environment config.Env, debug config.Debug) *Kernel {
-	container := &Container{
-		fmt.NewLogger(),
-		[]*cobra.Command{},
-	}
-
-	container.Commands = append(container.Commands, command.NewHelloCommand(container.Logger))
-
-	rootCmd := new(cobra.Command)
-	rootCmd.AddCommand(container.Commands...)
-
 	return &Kernel{
 		environment,
 		debug,
-		container,
-		rootCmd,
+		makeContainer(environment, debug),
 	}
 }
 
 func (kernel *Kernel) Run(args ...string) {
 	if len(args) > 0 {
-		kernel.rootCmd.SetArgs(args)
+		kernel.container.rootCmd.SetArgs(args)
 	}
 
-	if err := kernel.rootCmd.Execute(); err != nil {
+	if err := kernel.container.rootCmd.Execute(); err != nil {
 		kernel.container.Logger.Log(err.Error())
 		os.Exit(1)
 	}
+}
+
+func makeContainer(environment config.Env, debug config.Debug) *Container {
+	container := &Container{
+		fmt.NewLogger(),
+		cobra.Command{},
+	}
+
+	container.rootCmd.AddCommand(
+		command.NewHelloCommand(container.Logger),
+	)
+
+	return container
 }
