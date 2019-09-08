@@ -26,7 +26,7 @@ func (handler *CreateAccountCommandHandler) Execute(command CreateAccountCommand
 	account := account.NewAccount(
 		account.NewAccountId(command.Data.Id),
 		account.NewAccountName(command.Data.Name),
-		account.NewAccountUsername(command.Data.UserName),
+		account.NewAccountUsername(command.Data.Username),
 		account.NewAccountPassword(command.Data.Password),
 	)
 
