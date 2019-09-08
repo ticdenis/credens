@@ -2,7 +2,7 @@ package main
 
 import (
 	"credens/src/infrastructure/logging"
-	"credens/src/infrastructure/logging/logrus"
+	"credens/src/infrastructure/logging/fmt"
 	"credens/src/shared/user_interface/config"
 	"credens/src/user_interface/cli/command"
 	"github.com/spf13/cobra"
@@ -23,7 +23,7 @@ type Container struct {
 
 func NewKernel(environment config.Env, debug config.Debug) *Kernel {
 	container := &Container{
-		logrus.NewLogger(),
+		fmt.NewLogger(),
 		[]*cobra.Command{},
 	}
 

@@ -13,6 +13,7 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 go build -o /go/src .
+RUN make build-cli
+RUN make build-http
 
-CMD go run ./src/user_interface/cli/main.go
+CMD bash
