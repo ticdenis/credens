@@ -16,6 +16,8 @@ func (aggregateRoot *AggregateRoot) PullDomainEvents() []bus.Event {
 	return events
 }
 
-func (aggregateRoot *AggregateRoot) RecordDomainEvent(event *bus.Event) {
-	aggregateRoot.domainEvents = append(aggregateRoot.domainEvents, *event)
+func (aggregateRoot *AggregateRoot) RecordDomainEvent(event interface{}) {
+	if _, ok := event.(bus.Event); ok {
+		aggregateRoot.domainEvents = append(aggregateRoot.domainEvents, event.(bus.Event))
+	}
 }

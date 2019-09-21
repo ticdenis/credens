@@ -21,6 +21,6 @@ func NewUuid(value interface{}) *UUID {
 	}
 }
 
-func (vo *UUID) Value() string {
+func (vo UUID) Value() string {
 	return vo.value
 }

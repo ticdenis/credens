@@ -6,8 +6,16 @@ type SyncEventBus struct {
 	eventSubscribers []bus.EventSubscriber
 }
 
-func NewSyncEventBus(eventSubscribers []bus.EventSubscriber) bus.EventBus {
-	return &SyncEventBus{eventSubscribers}
+func NewSyncEventBus(eventSubscribers []interface{}) bus.EventBus {
+	var handlers []bus.EventSubscriber
+
+	for _, handler := range eventSubscribers {
+		if _, ok := handler.(bus.EventSubscriber); ok {
+			handlers = append(handlers, handler.(bus.EventSubscriber))
+		}
+	}
+
+	return &SyncEventBus{handlers}
 }
 
 func (bus *SyncEventBus) Notify(event bus.Event) {
@@ -18,4 +26,20 @@ func (bus *SyncEventBus) Notify(event bus.Event) {
 			}
 		}
 	}
+}
+
+type InMemoryEventPublisher struct {
+	events []bus.Event
+}
+
+func NewInMemoryEventPublisher() *InMemoryEventPublisher {
+	return &InMemoryEventPublisher{[]bus.Event{}}
+}
+
+func (publisher InMemoryEventPublisher) Record(domainEvents ...bus.Event) {
+	publisher.events = append(publisher.events, domainEvents...)
+}
+
+func (publisher InMemoryEventPublisher) Publish(domainEvents ...bus.Event) {
+	publisher.events = []bus.Event{}
 }

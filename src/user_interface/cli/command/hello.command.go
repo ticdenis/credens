@@ -16,12 +16,8 @@ func NewHelloCommand(logger logging.Logger) *cobra.Command {
 			}
 			return nil
 		},
-		Run: run(logger),
-	}
-}
-
-func run(logger logging.Logger) func(*cobra.Command, []string) {
-	return func(cmd *cobra.Command, args []string) {
-		logger.Log("Hello " + args[0] + "!\n")
+		Run: func(cmd *cobra.Command, args []string) {
+			logger.Log("Hello " + args[0] + "!\n")
+		},
 	}
 }

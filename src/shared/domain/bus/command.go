@@ -10,7 +10,7 @@ type Command struct {
 
 func NewCommand(commandName string) *Command {
 	return &Command{
-		value_object.UUID(nil).Value(),
+		value_object.NewUuid(nil).Value(),
 		"command",
 		commandName,
 	}

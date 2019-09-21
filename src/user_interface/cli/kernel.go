@@ -2,9 +2,8 @@ package main
 
 import (
 	"credens/src/infrastructure/logging"
-	"credens/src/infrastructure/logging/fmt"
+	"credens/src/shared/user_interface"
 	"credens/src/shared/user_interface/config"
-	"credens/src/user_interface/cli/command"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -12,42 +11,26 @@ import (
 type Kernel struct {
 	env       config.Env
 	debug     config.Debug
-	container *Container
+	container *user_interface.Container
 }
 
-type Container struct {
-	Logger  logging.Logger
-	rootCmd cobra.Command
-}
-
-func NewKernel(environment config.Env, debug config.Debug) *Kernel {
+func NewKernel(env config.Env, debug config.Debug) *Kernel {
 	return &Kernel{
-		environment,
+		env,
 		debug,
-		makeContainer(environment, debug),
+		NewContainer(env, debug),
 	}
 }
 
 func (kernel *Kernel) Run(args ...string) {
+	rootCmd := kernel.container.Get(RootCmdKey).(cobra.Command)
+
 	if len(args) > 0 {
-		kernel.container.rootCmd.SetArgs(args)
+		rootCmd.SetArgs(args)
 	}
 
-	if err := kernel.container.rootCmd.Execute(); err != nil {
-		kernel.container.Logger.Log(err.Error())
+	if err := rootCmd.Execute(); err != nil {
+		kernel.container.Get(LoggerKey).(logging.Logger).Log(err.Error())
 		os.Exit(1)
 	}
-}
-
-func makeContainer(environment config.Env, debug config.Debug) *Container {
-	container := &Container{
-		fmt.NewLogger(),
-		cobra.Command{},
-	}
-
-	container.rootCmd.AddCommand(
-		command.NewHelloCommand(container.Logger),
-	)
-
-	return container
 }

@@ -15,7 +15,7 @@ type Event struct {
 
 func NewEvent(aggregateId string, eventName string) *Event {
 	return &Event{
-		value_object.UUID(nil).Value(),
+		value_object.NewUuid(nil).Value(),
 		"event",
 		aggregateId,
 		eventName,

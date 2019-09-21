@@ -6,6 +6,6 @@ type AccountId struct {
 	value_object.UUID
 }
 
-func NewAccountId(value string) AccountId {
+func NewAccountId(value interface{}) AccountId {
 	return AccountId{UUID: *value_object.NewUuid(value)}
 }
