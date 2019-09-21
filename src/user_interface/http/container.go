@@ -103,7 +103,7 @@ func NewContainer(env config.Env, debug config.Debug) *user_interface.Container 
 	)
 
 	ctx.Set(HttpRouterKey, func(container *user_interface.Container) interface{} {
-		router := mux.NewRouter()
+		router := mux.NewRouter().StrictSlash(true)
 
 		router.HandleFunc("/healthz", controller.NewHealthzGetController()).Methods(http.MethodOptions, http.MethodGet)
 
