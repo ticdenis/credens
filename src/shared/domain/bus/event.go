@@ -1,50 +1,29 @@
 package bus
 
 import (
-	"credens/src/shared/domain/value_object"
 	"time"
 )
 
 type Event struct {
-	messageId       string
-	messageType     string
-	aggregateId     string
-	eventName       string
-	eventOccurredOn int64
+	Message
+	AggregateId     string
+	EventId         string
+	EventName       string
+	EventOccurredOn int64
 }
 
+var eventMessageType = "event"
+
 func NewEvent(aggregateId string, eventName string) *Event {
+	message := *NewMessage(eventMessageType)
+
 	return &Event{
-		value_object.NewUuid(nil).Value(),
-		"event",
+		message,
 		aggregateId,
+		message.MessageId,
 		eventName,
 		time.Now().UTC().Unix(),
 	}
-}
-
-func (event *Event) MessageId() string {
-	return event.messageId
-}
-
-func (event *Event) MessageType() string {
-	return "event"
-}
-
-func (event *Event) AggregateId() string {
-	return event.aggregateId
-}
-
-func (event *Event) EventId() string {
-	return event.messageId
-}
-
-func (event *Event) EventName() string {
-	return event.eventName
-}
-
-func (event *Event) EventOccurredOn() int64 {
-	return event.eventOccurredOn
 }
 
 type EventBus interface {

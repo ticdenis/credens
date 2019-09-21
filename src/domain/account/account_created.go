@@ -15,9 +15,11 @@ type AccountCreated struct {
 	Data AccountCreatedData
 }
 
+var accountCreatedEventName = "account_created"
+
 func NewAccountCreated(id string, name string, username string) *AccountCreated {
 	return &AccountCreated{
-		*bus.NewEvent(id, "account_created"),
+		*bus.NewEvent(id, accountCreatedEventName),
 		AccountCreatedData{id, name, username},
 	}
 }

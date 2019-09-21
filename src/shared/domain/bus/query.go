@@ -1,11 +1,14 @@
 package bus
 
 type Query struct {
+	Message
 	queryName string
 }
 
+var queryMessageType = "query"
+
 func NewQuery(queryName string) *Query {
-	return &Query{queryName}
+	return &Query{*NewMessage(queryMessageType), queryName}
 }
 
 func (query *Query) QueryName() string {

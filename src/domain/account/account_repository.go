@@ -1,5 +1,5 @@
 package account
 
 type AccountRepository interface {
-	Add(account Account)
+	Add(account *Account)
 }

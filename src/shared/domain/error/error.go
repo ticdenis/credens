@@ -1,17 +1,29 @@
 package error
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
-type Error struct {
+type DomainError struct {
 	code    string
 	message string
+	data    interface{}
 }
 
-func NewDomainError(code string, message string) *Error {
-	return &Error{code, message}
+func NewDomainError(code string, message string, data interface{}) *DomainError {
+	return &DomainError{code, message, data}
 }
 
-// Implements errors.Error
-func (domainError *Error) Error() string {
-	return errors.New(domainError.code + " -> " + domainError.message).Error()
+var domainErrorFormat = "DomainError [%s]: %s\n[data]: \"%v\""
+
+func (err DomainError) Error() string {
+	return errors.New(
+		fmt.Sprintf(
+			domainErrorFormat,
+			err.code,
+			err.message,
+			err.data,
+		),
+	).Error()
 }

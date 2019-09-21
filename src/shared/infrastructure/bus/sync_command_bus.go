@@ -20,7 +20,7 @@ func NewSyncCommandBus(commandHandlers []interface{}) bus.CommandBus {
 
 func (bus *SyncCommandBus) Dispatch(command bus.Command) {
 	for _, handler := range bus.commandHandlers {
-		if handler.SubscribedTo() == command.CommandName() {
+		if handler.SubscribedTo() == command.CommandName {
 			handler.Execute(command)
 		}
 	}

@@ -18,7 +18,7 @@ func NewCreateAccountCommandHandler(
 	eventPublisher bus.EventPublisher,
 ) *CreateAccountCommandHandler {
 	return &CreateAccountCommandHandler{
-		*bus.NewCommandHandler("create_account"),
+		*bus.NewCommandHandler(createAccountCommandName),
 		accountRepository,
 		accountBuilder,
 		eventPublisher,
@@ -33,7 +33,7 @@ func (handler *CreateAccountCommandHandler) Execute(command CreateAccountCommand
 		command.Data.Password,
 	)
 
-	handler.accountRepository.Add(*aggregate)
+	handler.accountRepository.Add(aggregate)
 
 	handler.eventPublisher.Publish(aggregate.PullDomainEvents()...)
 }
