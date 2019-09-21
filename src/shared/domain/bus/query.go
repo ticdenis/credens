@@ -1,28 +1,18 @@
 package bus
 
-type Query struct {
-	Message
-	queryName string
+type Query interface {
+	Message() Message
+	QueryName() string
+	Data() interface{}
 }
 
-var queryMessageType = "query"
-
-func NewQuery(queryName string) *Query {
-	return &Query{*NewMessage(queryMessageType), queryName}
-}
-
-func (query *Query) QueryName() string {
-	return query.queryName
-}
+var QueryMessageType = "query"
 
 type QueryBus interface {
-	Ask(query Query) Response
+	Ask(query Query) (interface{}, error)
 }
 
 type QueryHandler interface {
 	SubscribedTo() string
-	Execute(query Query) Response
-}
-
-type Response interface {
+	Execute(query Query) (interface{}, error)
 }

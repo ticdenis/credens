@@ -3,21 +3,19 @@ package command
 import (
 	"credens/src/application/create"
 	"credens/src/domain/account"
+	"credens/src/shared/domain/bus"
 	"encoding/json"
 	"errors"
 	"github.com/spf13/cobra"
 	"gopkg.in/go-playground/validator.v9"
 )
 
-func NewCreateAccountCommand(commandHandler create.CreateAccountCommandHandler) *cobra.Command {
-	type dataParsed struct {
+func NewCreateAccountCommand(commandBus bus.CommandBus) *cobra.Command {
+	var argsParsed struct {
 		Name     string `json:"name" validate:"required"`
 		Username string `json:"username" validate:"required"`
 		Password string `json:"password" validate:"required"`
 	}
-
-	validate := validator.New()
-	argsParsed := new(dataParsed)
 
 	return &cobra.Command{
 		Use:   "create_account json(name, username, password)",
@@ -31,10 +29,10 @@ func NewCreateAccountCommand(commandHandler create.CreateAccountCommandHandler) 
 				return err
 			}
 
-			return validate.Struct(argsParsed)
+			return validator.New().Struct(argsParsed)
 		},
-		Run: func(cmd *cobra.Command, args []string) {
-			commandHandler.Execute(
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return commandBus.Dispatch(
 				*create.NewCreateAccountCommand(
 					account.NewAccountId(nil).Value(),
 					argsParsed.Name,

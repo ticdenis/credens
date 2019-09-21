@@ -10,8 +10,8 @@ func NewSyncEventBus(eventSubscribers []interface{}) bus.EventBus {
 	var handlers []bus.EventSubscriber
 
 	for _, handler := range eventSubscribers {
-		if _, ok := handler.(bus.EventSubscriber); ok {
-			handlers = append(handlers, handler.(bus.EventSubscriber))
+		if eventSubscriber, ok := handler.(bus.EventSubscriber); ok {
+			handlers = append(handlers, eventSubscriber)
 		}
 	}
 
@@ -21,7 +21,7 @@ func NewSyncEventBus(eventSubscribers []interface{}) bus.EventBus {
 func (bus *SyncEventBus) Notify(event bus.Event) {
 	for _, subscriber := range bus.eventSubscribers {
 		for _, eventName := range subscriber.SubscribedTo() {
-			if eventName == event.EventName {
+			if eventName == event.EventName() {
 				subscriber.Execute(event)
 			}
 		}

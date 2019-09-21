@@ -1,9 +1,9 @@
 package main
 
 import (
-	"credens/src/infrastructure/logging"
 	"credens/src/shared/user_interface"
 	"credens/src/shared/user_interface/config"
+	"net/http"
 )
 
 type Kernel struct {
@@ -20,12 +20,10 @@ func NewKernel(env config.Env, debug config.Debug) *Kernel {
 	}
 }
 
-func (kernel *Kernel) Run(req interface{}) {
-	logger := kernel.container.Get(LoggerKey).(logging.Logger)
+func (kernel *Kernel) Run() {
+	server := kernel.container.Get(HttpServerKey).(http.Server)
 
-	if nil != req {
-		logger.Log("HTTP should execute this req: " + req.(string))
-	} else {
-		logger.Log("Hello from HTTP!")
+	if err := server.ListenAndServe(); err != nil {
+		panic(err)
 	}
 }

@@ -1,0 +1,37 @@
+### 404 Not Found -
+GET http://localhost:8000/
+
+### 200 OK - {"status": "OK"}
+GET http://localhost:8000/healthz
+
+### 201 OK - {}
+POST http://localhost:8000/accounts
+Content-Type: application/json
+
+{
+  "name": "Foo",
+  "username": "foo",
+  "password": "secret"
+}
+
+### 500 Internal Server Error - {"data": null", "errors:" ["..."]}
+POST http://localhost:8000/accounts
+Content-Type: text/plain
+
+name=Foo,username=foo,password=secret
+
+### 400 Bad Request - {"data": null", "errors:" ["..."]}
+POST http://localhost:8000/accounts
+Content-Type: application/json
+
+{
+  "name": "",
+  "username": "",
+  "password": ""
+}
+
+### 200 OK - {"data": "...", "errors:" []}
+GET http://localhost:8000/accounts/E86A5F28-E17D-40D8-9018-7B39B8D86822
+Content-Type: application/json
+
+###

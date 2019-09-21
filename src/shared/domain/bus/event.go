@@ -1,30 +1,15 @@
 package bus
 
-import (
-	"time"
-)
-
-type Event struct {
-	Message
-	AggregateId     string
-	EventId         string
-	EventName       string
-	EventOccurredOn int64
+type Event interface {
+	Message() Message
+	AggregateId() string
+	EventId() string
+	EventName() string
+	EventOccurredOn() int64
+	Data() interface{}
 }
 
-var eventMessageType = "event"
-
-func NewEvent(aggregateId string, eventName string) *Event {
-	message := *NewMessage(eventMessageType)
-
-	return &Event{
-		message,
-		aggregateId,
-		message.MessageId,
-		eventName,
-		time.Now().UTC().Unix(),
-	}
-}
+var EventMessageType = "event"
 
 type EventBus interface {
 	Notify(event Event)

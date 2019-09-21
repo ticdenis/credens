@@ -2,6 +2,7 @@ package main
 
 import (
 	"credens/src/application/create"
+	"credens/src/application/read"
 	"credens/src/domain/account"
 	infraDomainAccount "credens/src/infrastructure/domain/account"
 	"credens/src/infrastructure/logging"
@@ -15,11 +16,11 @@ import (
 )
 
 const (
-	domainPath       string = "credens/src/domain"
-	appPath                 = "credens/src/application"
-	infraPath               = "credens/src/infrastructure"
-	sharedDomainPath        = "credens/src/shared/domain"
-	sharedInfraPath         = "credens/src/shared/infrastructure"
+	domainPath       = "credens/src/domain"
+	appPath          = "credens/src/application"
+	infraPath        = "credens/src/infrastructure"
+	sharedDomainPath = "credens/src/shared/domain"
+	sharedInfraPath  = "credens/src/shared/infrastructure"
 	// sharedAppPath        = "credens/src/shared/application"
 )
 
@@ -89,6 +90,15 @@ func NewContainer(env config.Env, debug config.Debug) *user_interface.Container 
 
 	ctx.SetEmptySlice(QueryHandlerSliceKey)
 
+	ctx.SetInSlice(
+		QueryHandlerSliceKey,
+		func(container *user_interface.Container) interface{} {
+			return read.NewReadAccountQueryHandler(
+				container.Get(AccountRepositoryKey).(account.AccountRepository),
+			)
+		},
+	)
+
 	ctx.Set(
 		QueryBusKey,
 		func(container *user_interface.Container) interface{} {
@@ -104,10 +114,11 @@ func NewContainer(env config.Env, debug config.Debug) *user_interface.Container 
 		rootCmd.AddCommand(
 			command.NewHelloCommand(logger),
 			command.NewCreateAccountCommand(
-				container.GetInDict(
-					CommandHandlerDictKey,
-					CreateAccountCommandHandlerKey,
-				).(create.CreateAccountCommandHandler),
+				container.Get(CommandBusKey).(bus.CommandBus),
+			),
+			command.NewReadAccountCommand(
+				container.Get(QueryBusKey).(bus.QueryBus),
+				logger,
 			),
 		)
 

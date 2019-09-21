@@ -3,7 +3,6 @@ package user_interface
 import (
 	"errors"
 	"fmt"
-	"reflect"
 	"strings"
 )
 
@@ -26,7 +25,7 @@ func (container *Container) Set(id string, fn Setter) {
 }
 
 func (container *Container) SetEmptySlice(id string) {
-	container.set(id, []interface{}{})
+	container.set(id, make([]interface{}, 0))
 }
 
 func (container *Container) SetEmptyDict(id string) {
@@ -34,18 +33,7 @@ func (container *Container) SetEmptyDict(id string) {
 }
 
 func (container Container) isArray(id string) bool {
-	if !strings.Contains(id, "[]") {
-		return false
-	}
-
-	switch reflect.TypeOf(container.Get(id)).Kind() {
-	case reflect.Slice:
-	case reflect.Array:
-	case reflect.Map:
-		return true
-	}
-
-	return false
+	return strings.Contains(id, "[]")
 }
 
 func (container *Container) SetInDict(dictId string, id string, fn Setter) {
@@ -86,6 +74,7 @@ func (container Container) GetInDict(dictId string, id string) interface{} {
 
 func (container Container) GetDictAsSlice(dictId string) []interface{} {
 	dict := container.Get(dictId).(map[string]interface{})
+
 	arr := make([]interface{}, 0, len(dict))
 
 	for _, val := range dict {

@@ -7,5 +7,5 @@ func main() {
 
 	kernel := NewKernel(config.Env, config.Debug)
 
-	kernel.Run(nil)
+	kernel.Run()
 }

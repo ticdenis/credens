@@ -1,34 +1,19 @@
 package bus
 
-type Command struct {
-	Message
-	CommandName string
+type Command interface {
+	Message() Message
+	CommandName() string
+	Data() interface{}
 }
 
-var commandMessageType = "command"
-
-func NewCommand(commandName string) *Command {
-	return &Command{
-		*NewMessage(commandMessageType),
-		commandName,
-	}
-}
+var CommandMessageType = "command"
 
 type CommandBus interface {
-	Dispatch(command Command)
+	// command Command
+	Dispatch(command Command) error
 }
 
-type CommandHandler struct {
-	commandName string
-}
-
-func NewCommandHandler(commandName string) *CommandHandler {
-	return &CommandHandler{commandName}
-}
-
-func (handler *CommandHandler) SubscribedTo() string {
-	return handler.commandName
-}
-
-func (handler *CommandHandler) Execute(command Command) {
+type CommandHandler interface {
+	SubscribedTo() string
+	Execute(command Command) error
 }

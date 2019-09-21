@@ -6,7 +6,6 @@ import (
 )
 
 type CreateAccountCommandHandler struct {
-	bus.CommandHandler
 	accountRepository account.AccountRepository
 	accountBuilder    account.AccountBuilder
 	eventPublisher    bus.EventPublisher
@@ -18,22 +17,35 @@ func NewCreateAccountCommandHandler(
 	eventPublisher bus.EventPublisher,
 ) *CreateAccountCommandHandler {
 	return &CreateAccountCommandHandler{
-		*bus.NewCommandHandler(createAccountCommandName),
 		accountRepository,
 		accountBuilder,
 		eventPublisher,
 	}
 }
 
-func (handler *CreateAccountCommandHandler) Execute(command CreateAccountCommand) {
+func (handler CreateAccountCommandHandler) SubscribedTo() string {
+	return "create_account"
+}
+
+func (handler CreateAccountCommandHandler) Execute(command bus.Command) error {
+	if cmd, ok := command.(CreateAccountCommand); ok {
+		return handler.execute(cmd)
+	}
+
+	return nil
+}
+
+func (handler CreateAccountCommandHandler) execute(command CreateAccountCommand) error {
 	aggregate := handler.accountBuilder.Build(
-		command.Data.Id,
-		command.Data.Name,
-		command.Data.Username,
-		command.Data.Password,
+		command.data.Id,
+		command.data.Name,
+		command.data.Username,
+		command.data.Password,
 	)
 
 	handler.accountRepository.Add(aggregate)
 
 	handler.eventPublisher.Publish(aggregate.PullDomainEvents()...)
+
+	return nil
 }

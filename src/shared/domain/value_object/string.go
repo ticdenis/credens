@@ -8,6 +8,6 @@ func NewString(value string) *String {
 	return &String{value: value}
 }
 
-func (vo *String) Value() string {
+func (vo String) Value() string {
 	return vo.value
 }
