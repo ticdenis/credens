@@ -15,18 +15,27 @@ import (
 )
 
 const (
-	LoggerKey                      string = "credens/src/infrastructure/logging/Logger"
-	AccountRepositoryKey                  = "credens/src/domain/account/account_repository/AccountRepository"
-	AccountBuilderKey                     = "credens/src/domain/account/account_builder/AccountBuilder"
-	EventPublisherKey                     = "credens/src/shared/domain/bus/EventPublisherKey"
-	CommandHandlerDictKey                 = "credens/src/shared/domain/bus/CommandHandler[]"
-	CommandBusKey                         = "credens/src/shared/infrastructure/bus/CommandBus"
-	CreateAccountCommandHandlerKey        = "credens/src/application/create/create_account_command_handler/CreateAccountCommandHandler"
-	EventSubscriberDictKey                = "credens/src/shared/domain/bus/EventSubscriber[]"
-	EventBusKey                           = "credens/src/shared/domain/bus/EventBus"
-	QueryBusKey                           = "credens/src/shared/domain/bus/QueryBus"
-	QueryHandlerSliceKey                  = "credens/src/shared/domain/bus/QueryHandler[]"
-	RootCmdKey                            = "github.com/spf13/cobra/Command"
+	domainPath       string = "credens/src/domain"
+	appPath                 = "credens/src/application"
+	infraPath               = "credens/src/infrastructure"
+	sharedDomainPath        = "credens/src/shared/domain"
+	sharedInfraPath         = "credens/src/shared/infrastructure"
+	// sharedAppPath        = "credens/src/shared/application"
+)
+
+const (
+	LoggerKey                      = infraPath + "/logging/Logger"
+	AccountRepositoryKey           = domainPath + "/account/account_repository/AccountRepository"
+	AccountBuilderKey              = domainPath + "/account/account_builder/AccountBuilder"
+	EventPublisherKey              = sharedDomainPath + "/bus/EventPublisherKey"
+	CommandHandlerDictKey          = sharedDomainPath + "/bus/CommandHandler[]"
+	CommandBusKey                  = sharedInfraPath + "/bus/CommandBus"
+	CreateAccountCommandHandlerKey = appPath + "/create/create_account_command_handler/CreateAccountCommandHandler"
+	EventSubscriberDictKey         = sharedDomainPath + "/bus/EventSubscriber[]"
+	EventBusKey                    = sharedDomainPath + "/bus/EventBus"
+	QueryBusKey                    = sharedDomainPath + "/bus/QueryBus"
+	QueryHandlerSliceKey           = sharedDomainPath + "/bus/QueryHandler[]"
+	RootCmdKey                     = "github.com/spf13/cobra/Command"
 )
 
 func NewContainer(env config.Env, debug config.Debug) *user_interface.Container {
@@ -95,7 +104,10 @@ func NewContainer(env config.Env, debug config.Debug) *user_interface.Container 
 		rootCmd.AddCommand(
 			command.NewHelloCommand(logger),
 			command.NewCreateAccountCommand(
-				container.GetInDict(CommandHandlerDictKey, CreateAccountCommandHandlerKey).(create.CreateAccountCommandHandler),
+				container.GetInDict(
+					CommandHandlerDictKey,
+					CreateAccountCommandHandlerKey,
+				).(create.CreateAccountCommandHandler),
 			),
 		)
 

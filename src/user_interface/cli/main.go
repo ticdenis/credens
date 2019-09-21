@@ -7,8 +7,9 @@ func main() {
 
 	kernel := NewKernel(config.Env, config.Debug)
 
-	// commandName := "hello"
-	// args := []string{commandName, "Go"}
+	// commandName := "create_account"
+	// args := []string{commandName, "{\"name\": \"foo\", \"username\": \"alias\", \"password\": \"pwd\"}"}
+	var args []string
 
-	kernel.Run()
+	kernel.Run(args...)
 }
