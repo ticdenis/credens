@@ -1,10 +1,11 @@
 package main
 
 import (
+	"credens/src/infrastructure/logging"
 	"credens/src/shared/user_interface"
 	"credens/src/shared/user_interface/config"
+	"credens/src/user_interface/rpc/service"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"net/rpc"
@@ -13,50 +14,40 @@ import (
 type Kernel struct {
 	env       config.Env
 	debug     config.Debug
+	port      int
 	container *user_interface.Container
 }
 
-func NewKernel(env config.Env, debug config.Debug) *Kernel {
+func NewKernel(env config.Env, debug config.Debug, port int) *Kernel {
 	return &Kernel{
 		env,
 		debug,
-		NewContainer(env, debug),
+		port,
+		NewContainer(env, debug, port),
 	}
 }
 
-type API int
-
-type Item struct {
-	Text string
-}
-
-func (api *API) SayHello(to string, reply *Item) error {
-	(*reply).Text = fmt.Sprintf("Hello %s from RPC app!", to)
-
-	return nil
-}
-
 func (kernel *Kernel) Run() {
-	port := 4040
+	logger := kernel.container.Get(LoggerKey).(logging.Logger)
 
-	var api = new(API)
+	rcvr := new(service.RPCAPIService)
 
-	err := rpc.Register(api)
+	err := rpc.Register(rcvr)
 	if err != nil {
-		log.Fatal("register error", err)
+		panic(err)
 	}
 
 	rpc.HandleHTTP()
 
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	logger.Log(fmt.Sprintf("Listening tcp network at %d port...", kernel.port))
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", kernel.port))
 	if err != nil {
-		log.Fatal("listener error", err)
+		panic(err)
 	}
 
+	logger.Log("Serving grpc...")
 	err = http.Serve(listener, nil)
 	if err != nil {
-		log.Fatal("serve error", err)
+		panic(err)
 	}
-
-	log.Printf("Serving rpc on port %d", port)
 }

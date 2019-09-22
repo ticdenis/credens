@@ -30,7 +30,7 @@ Content-Type: application/json
   "password": ""
 }
 
-### 200 OK - {"data": "...", "errors:" []}
+### 404 OK - {"data": "...", "errors:" []}
 GET http://localhost:8000/accounts/E86A5F28-E17D-40D8-9018-7B39B8D86822
 Content-Type: application/json
 

@@ -6,10 +6,10 @@ import (
 )
 
 type InfrastructureError struct {
-	code    string
-	message string
-	data    interface{}
-	err     error
+	Code    string
+	Message string
+	Data    interface{}
+	Err     error
 }
 
 func NewInfrastructureError(code string, message string, data interface{}, err error) *InfrastructureError {
@@ -22,10 +22,10 @@ func (err InfrastructureError) Error() string {
 	return errors.New(
 		fmt.Sprintf(
 			infrastructureErrorFormat,
-			err.code,
-			err.message,
-			err.data,
-			err.err.Error(),
+			err.Code,
+			err.Message,
+			err.Data,
+			err.Err.Error(),
 		),
 	).Error()
 }

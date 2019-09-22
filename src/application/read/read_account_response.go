@@ -3,9 +3,9 @@ package read
 import "credens/src/domain/account"
 
 type ReadAccountResponse struct {
-	Id       string `json:"Id"`
-	Name     string `json:"Name"`
-	Username string `json:"Username"`
+	Id       string
+	Name     string
+	Username string
 }
 
 func NewReadAccountResponse(account account.Account) *ReadAccountResponse {

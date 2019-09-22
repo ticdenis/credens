@@ -1,44 +1,50 @@
 package main
 
 import (
+	"credens/src/infrastructure/logging"
 	"credens/src/shared/user_interface"
 	"credens/src/shared/user_interface/config"
 	"fmt"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"time"
 )
 
 type Kernel struct {
-	env       config.Env
-	debug     config.Debug
-	container *user_interface.Container
+	env            config.Env
+	debug          config.Debug
+	host           string
+	port           int
+	timeoutSeconds time.Duration
+	container      *user_interface.Container
 }
 
-func NewKernel(env config.Env, debug config.Debug) *Kernel {
+func NewKernel(env config.Env, debug config.Debug, host string, port int, timeoutSeconds time.Duration) *Kernel {
 	return &Kernel{
 		env,
 		debug,
-		NewContainer(env, debug),
+		host,
+		port,
+		timeoutSeconds,
+		NewContainer(env, debug, host, port),
 	}
 }
 
 func (kernel *Kernel) Run() {
-	host := "127.0.0.1"
-	port := 8000
+	logger := kernel.container.Get(LoggerKey).(logging.Logger)
 
-	timeout := 15 * time.Second
+	address := fmt.Sprintf("%s:%d", kernel.host, kernel.port)
+	timeout := kernel.timeoutSeconds * time.Second
 
 	server := http.Server{
 		Handler:      kernel.container.Get(HttpRouterKey).(*mux.Router),
-		Addr:         fmt.Sprintf("%s:%d", host, port),
+		Addr:         address,
 		WriteTimeout: timeout,
 		ReadTimeout:  timeout,
 	}
 
+	logger.Log(fmt.Sprintf("Listening and serving http at %s...", address))
 	if err := server.ListenAndServe(); err != nil {
-		log.Fatal("error listening and serve server", err)
+		panic(err)
 	}
-	log.Printf("Serving http on port %d", port)
 }

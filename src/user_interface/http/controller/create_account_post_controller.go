@@ -3,52 +3,57 @@ package controller
 import (
 	"credens/src/application/create"
 	"credens/src/domain/account"
+	"credens/src/shared/application/serializer"
 	"credens/src/shared/domain/bus"
+	"credens/src/user_interface/http/contracts"
 	"encoding/json"
-	"fmt"
 	"gopkg.in/go-playground/validator.v9"
-	"io"
 	"net/http"
 )
 
-func NewCreateAccountPostController(commandBus bus.CommandBus) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+func NewCreateAccountPostController(commandBus bus.CommandBus, jsonSerializer serializer.JSONSerializer) func(w http.ResponseWriter, r *http.Request) {
+	validateCommandFromRequest := func(w http.ResponseWriter, r *http.Request) (bus.Command, *contracts.JSONAPIErrorObject) {
 		var bodyParsed struct {
 			Name     string `json:"name" validate:"required"`
 			Username string `json:"username" validate:"required"`
 			Password string `json:"password" validate:"required"`
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-
 		if err := json.NewDecoder(r.Body).Decode(&bodyParsed); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			io.WriteString(w, fmt.Sprintf(`{"data": null, "errors": ["%s"]}`, err.Error()))
-
-			return
+			return nil, contracts.NewJSONAPIErrorObject(err, http.StatusInternalServerError)
 		}
 
 		if err := validator.New().Struct(bodyParsed); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			io.WriteString(w, fmt.Sprintf(`{"data": null, "errors": ["%s"]}`, err.Error()))
-
-			return
+			return nil, contracts.NewJSONAPIErrorObject(err, http.StatusBadRequest)
 		}
 
-		err := commandBus.Dispatch(*create.NewCreateAccountCommand(
+		return *create.NewCreateAccountCommand(
 			account.NewAccountId(nil).Value(),
 			bodyParsed.Name,
 			bodyParsed.Username,
 			bodyParsed.Password,
-		))
-		if err != nil {
-			w.WriteHeader(http.StatusConflict)
-			io.WriteString(w, fmt.Sprintf(`{"data": null, "errors": ["%s"]}`, err.Error()))
+		), nil
+	}
 
+	return func(w http.ResponseWriter, r *http.Request) {
+		jsonResponder := contracts.NewJSONResponder(w, r, jsonSerializer)
+
+		command, err := validateCommandFromRequest(w, r)
+		if err != nil {
+			jsonResponder.JSONErrorsResponse(err.HttpStatus, *err)
 			return
 		}
 
-		w.WriteHeader(http.StatusCreated)
-		io.WriteString(w, "{}")
+		if err := commandBus.Dispatch(command); err != nil {
+			jsonResponder.ErrorsResponse(http.StatusConflict, err)
+			return
+		}
+
+		jsonResponder.DataResponse(
+			http.StatusCreated,
+			"accounts",
+			command.Data().(create.CreateAccountCommandData).Id,
+			nil,
+		)
 	}
 }

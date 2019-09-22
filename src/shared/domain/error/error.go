@@ -6,9 +6,9 @@ import (
 )
 
 type DomainError struct {
-	code    string
-	message string
-	data    interface{}
+	Code    string
+	Message string
+	Data    interface{}
 }
 
 func NewDomainError(code string, message string, data interface{}) *DomainError {
@@ -21,9 +21,9 @@ func (err DomainError) Error() string {
 	return errors.New(
 		fmt.Sprintf(
 			domainErrorFormat,
-			err.code,
-			err.message,
-			err.data,
+			err.Code,
+			err.Message,
+			err.Data,
 		),
 	).Error()
 }

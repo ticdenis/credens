@@ -1,11 +1,9 @@
 package main
 
-import "credens/src/shared/user_interface"
-
 func main() {
-	config := user_interface.Bootstrap()
+	config := Bootstrap()
 
-	kernel := NewKernel(config.Env, config.Debug)
+	kernel := NewKernel(config.Env, config.Debug, config.Host, config.Port, config.TimeoutSeconds)
 
 	kernel.Run()
 }

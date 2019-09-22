@@ -1,34 +1,25 @@
 package main
 
 import (
-	"context"
+	"credens/src/infrastructure/logging/logrus"
 	pb "credens/src/user_interface/grpc/proto"
+	"credens/src/user_interface/grpc/service"
 	"fmt"
-	"google.golang.org/grpc"
-	"time"
 )
 
 func main() {
-	host := "localhost:4040"
+	logger := logrus.NewLogger()
+	address := fmt.Sprintf("%s:%d", "localhost", 4041)
 
-	fmt.Printf("Listening insecure grpc server at %s port...\n", host)
-	conn, err := grpc.Dial(host, grpc.WithInsecure())
-	if err != nil {
-		panic(err)
-	}
-	defer conn.Close()
+	logger.Log(fmt.Sprintf("Listening insecure grpc server at %s...", address))
+	client := service.NewGRPCAPIServiceClient(address)
 
-	client := pb.NewAPIServiceClient(conn)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
-	defer cancel()
-
-	fmt.Println("Calling SayHello function on grpc server...")
+	logger.Log("Calling SayHello function on grpc server...")
 	req := &pb.SayHelloRequest{To: "World"}
-	res, err := client.SayHello(ctx, req)
+	res, err := client.SayHello(service.MakeContextWithTimeout(20), req)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("Result from SayHello function called from grpc server: %v", res.Result)
+	logger.Log(fmt.Sprintf("Result from SayHello function called from grpc server: %v", res.Result))
 }

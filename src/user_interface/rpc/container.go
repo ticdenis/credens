@@ -32,7 +32,7 @@ const (
 	QueryHandlerSliceKey           = sharedDomainPath + "/bus/QueryHandler[]"
 )
 
-func NewContainer(env config.Env, debug config.Debug) *user_interface.Container {
+func NewContainer(env config.Env, debug config.Debug, port int) *user_interface.Container {
 	ctx := user_interface.NewContainer()
 
 	ctx.Set(LoggerKey, func(_ *user_interface.Container) interface{} {

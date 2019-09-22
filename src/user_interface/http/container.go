@@ -7,6 +7,8 @@ import (
 	infraDomainAccount "credens/src/infrastructure/domain/account"
 	"credens/src/infrastructure/logging"
 	"credens/src/infrastructure/logging/logrus"
+	"credens/src/shared/application/serializer"
+	"credens/src/shared/application/serializer/json_iterator"
 	"credens/src/shared/domain/bus"
 	sharedBus "credens/src/shared/infrastructure/bus"
 	"credens/src/shared/user_interface"
@@ -22,6 +24,7 @@ const (
 	appPath          = "credens/src/application"
 	infraPath        = "credens/src/infrastructure"
 	sharedDomainPath = "credens/src/shared/domain"
+	sharedAppPath    = "credens/src/shared/application"
 	sharedInfraPath  = "credens/src/shared/infrastructure"
 )
 
@@ -35,10 +38,11 @@ const (
 	CreateAccountCommandHandlerKey = appPath + "/create/create_account_command_handler/CreateAccountCommandHandler"
 	QueryBusKey                    = sharedDomainPath + "/bus/QueryBus"
 	QueryHandlerSliceKey           = sharedDomainPath + "/bus/QueryHandler[]"
+	JSONSerializerKey              = sharedAppPath + "/serializer/json_serializer/JSONSerializer"
 	HttpRouterKey                  = "github.com/gorilla/mux/Router"
 )
 
-func NewContainer(env config.Env, debug config.Debug) *user_interface.Container {
+func NewContainer(env config.Env, debug config.Debug, host string, port int) *user_interface.Container {
 	ctx := user_interface.NewContainer()
 
 	ctx.Set(LoggerKey, func(_ *user_interface.Container) interface{} {
@@ -96,17 +100,29 @@ func NewContainer(env config.Env, debug config.Debug) *user_interface.Container 
 		},
 	)
 
+	ctx.Set(
+		JSONSerializerKey,
+		func(container *user_interface.Container) interface{} {
+			return *json_iterator.NewJSONIteratorJSONSerializer()
+		},
+	)
+
 	ctx.Set(HttpRouterKey, func(container *user_interface.Container) interface{} {
+		jsonSerializer := container.Get(JSONSerializerKey).(serializer.JSONSerializer)
+
 		router := mux.NewRouter().StrictSlash(true)
 
-		router.HandleFunc("/healthz", controller.NewHealthzGetController()).Methods(http.MethodOptions, http.MethodGet)
+		router.HandleFunc("/healthz", controller.NewHealthzGetController(jsonSerializer)).
+			Methods(http.MethodOptions, http.MethodGet)
 
 		router.HandleFunc("/accounts", controller.NewCreateAccountPostController(
 			container.Get(CommandBusKey).(bus.CommandBus),
+			jsonSerializer,
 		)).Methods(http.MethodOptions, http.MethodPost)
 
 		router.HandleFunc("/accounts/{id}", controller.NewReadAccountGetController(
 			container.Get(QueryBusKey).(bus.QueryBus),
+			jsonSerializer,
 		)).Methods(http.MethodOptions, http.MethodGet)
 
 		router.Use(

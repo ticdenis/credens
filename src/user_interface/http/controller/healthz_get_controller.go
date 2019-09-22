@@ -1,16 +1,17 @@
 package controller
 
 import (
-	"io"
+	"credens/src/shared/application/serializer"
+	"credens/src/user_interface/http/contracts"
 	"net/http"
 )
 
-func NewHealthzGetController() (func(w http.ResponseWriter, r *http.Request)) {
+func NewHealthzGetController(jsonSerializer serializer.JSONSerializer) (func(w http.ResponseWriter, r *http.Request)) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
+		jsonResponder := contracts.NewJSONResponder(w, r, jsonSerializer)
 
-		io.WriteString(w, `{"status": "OK"}`)
+		data := map[string]string{"status": "OK"}
+
+		jsonResponder.DataResponse(http.StatusOK, "service", nil, data)
 	}
-
 }

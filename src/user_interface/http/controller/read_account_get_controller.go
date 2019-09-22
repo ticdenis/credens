@@ -2,44 +2,32 @@ package controller
 
 import (
 	"credens/src/application/read"
+	"credens/src/shared/application/serializer"
 	"credens/src/shared/domain/bus"
-	"encoding/json"
-	"fmt"
+	"credens/src/user_interface/http/contracts"
+	"errors"
 	"github.com/gorilla/mux"
-	"io"
 	"net/http"
 )
 
-func NewReadAccountGetController(queryBus bus.QueryBus) func(w http.ResponseWriter, r *http.Request) {
+func NewReadAccountGetController(queryBus bus.QueryBus, jsonSerializer serializer.JSONSerializer) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
+		jsonResponder := contracts.NewJSONResponder(w, r, jsonSerializer)
+		accountId := mux.Vars(r)["id"]
 
-		w.Header().Set("Content-Type", "application/json")
-
-		if vars["id"] == "" {
-			w.WriteHeader(http.StatusBadRequest)
-			io.WriteString(w, fmt.Sprintf(`{"data": null, "errors": ["%s"]}`, "id query param mandatory!"))
-
+		// validation
+		if accountId == "" {
+			jsonResponder.ErrorsResponse(http.StatusBadRequest, errors.New("query param 'id' mandatory"))
 			return
 		}
 
-		res, err := queryBus.Ask(*read.NewReadAccountQuery(vars["id"]))
+		// action
+		res, err := queryBus.Ask(*read.NewReadAccountQuery(accountId))
 		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
-			io.WriteString(w, fmt.Sprintf(`{"data": null, "errors": ["%s"]}`, err.Error()))
-
+			jsonResponder.ErrorsResponse(http.StatusNotFound, err)
 			return
 		}
 
-		resParsed, err := json.Marshal(&res)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			io.WriteString(w, fmt.Sprintf(`{"data": null, "errors": ["%s"]}`, err.Error()))
-
-			return
-		}
-
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(fmt.Sprintf(`{"data": "%s", "errors": []}`, resParsed)))
+		jsonResponder.DataResponse(http.StatusOK, "accounts", accountId, res)
 	}
 }

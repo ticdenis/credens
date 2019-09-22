@@ -6,9 +6,9 @@ import (
 )
 
 type ApplicationError struct {
-	code    string
-	message string
-	data    interface{}
+	Code    string
+	Message string
+	Data    interface{}
 }
 
 func NewApplicationError(code string, message string, data interface{}) *ApplicationError {
@@ -21,9 +21,9 @@ func (err ApplicationError) Error() string {
 	return errors.New(
 		fmt.Sprintf(
 			applicationErrorFormat,
-			err.code,
-			err.message,
-			err.data,
+			err.Code,
+			err.Message,
+			err.Data,
 		),
 	).Error()
 }
