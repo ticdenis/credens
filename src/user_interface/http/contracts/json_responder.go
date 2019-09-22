@@ -36,19 +36,17 @@ func (obj JSONResponder) DataResponses(statusCode int, data []struct {
 	obj.response(statusCode, obj.serialize(jsonResponseObject))
 }
 
-func (obj JSONResponder) ErrorsResponse(statusCode int, errors ...error) {
+func (obj JSONResponder) ErrorsResponse(statusCode int, errors ...interface{}) {
 	var errorsObjects []JSONAPIErrorObject
 	for _, err := range errors {
-		errorsObjects = append(errorsObjects, *NewJSONAPIErrorObject(err, statusCode))
+		if errorObject, ok := err.(JSONAPIErrorObject); ok {
+			errorsObjects = append(errorsObjects, errorObject)
+		} else if stdError, ok := err.(error); ok {
+			errorsObjects = append(errorsObjects, *NewJSONAPIErrorObject(stdError, statusCode))
+		}
 	}
 
 	jsonResponseObject := *NewJSONResponse(nil, errorsObjects)
-
-	obj.response(statusCode, obj.serialize(jsonResponseObject))
-}
-
-func (obj JSONResponder) JSONErrorsResponse(statusCode int, errors ...JSONAPIErrorObject) {
-	jsonResponseObject := *NewJSONResponse(nil, errors)
 
 	obj.response(statusCode, obj.serialize(jsonResponseObject))
 }

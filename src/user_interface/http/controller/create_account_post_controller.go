@@ -40,7 +40,7 @@ func NewCreateAccountPostController(commandBus bus.CommandBus, jsonSerializer se
 
 		command, err := validateCommandFromRequest(w, r)
 		if err != nil {
-			jsonResponder.JSONErrorsResponse(err.HttpStatus, *err)
+			jsonResponder.ErrorsResponse(err.HttpStatus, *err)
 			return
 		}
 
