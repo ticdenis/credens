@@ -31,3 +31,4 @@ make go-test-lib name=lib_name
    
 ###  Libs
    - accounts
+   - shared
