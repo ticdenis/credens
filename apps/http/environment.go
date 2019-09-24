@@ -4,15 +4,12 @@ import (
 	"github.com/joho/godotenv"
 	"os"
 	"strconv"
-	"time"
 )
 
 type Environment struct {
-	Env            string
-	Debug          bool
-	Host           string
-	Port           int
-	TimeoutSeconds time.Duration
+	Env   string
+	Debug bool
+	Port  int
 }
 
 func LoadEnvironment() (*Environment, error) {
@@ -20,29 +17,25 @@ func LoadEnvironment() (*Environment, error) {
 		return nil, err
 	}
 
-	env := new(Environment)
+	environment := new(Environment)
 
-	env.Env = os.Getenv("APP_ENV")
+	env, envExists := os.LookupEnv("APP_ENV")
+	if !envExists || env == "" {
+		env = "development"
+	}
+	environment.Env = env
 
 	debug, err := strconv.ParseBool(os.Getenv("APP_DEBUG"))
 	if err != nil {
 		return nil, err
 	}
-	env.Debug = debug
-
-	env.Host = os.Getenv("HTTP_HOST")
+	environment.Debug = debug
 
 	port, err := strconv.Atoi(os.Getenv("HTTP_PORT"))
-	env.Port = port
+	environment.Port = port
 	if err != nil {
 		return nil, err
 	}
 
-	timeoutSeconds, err := strconv.Atoi(os.Getenv("HTTP_TIMEOUT_SECONDS"))
-	if err != nil {
-		return nil, err
-	}
-	env.TimeoutSeconds = time.Duration(timeoutSeconds)
-
-	return env, nil
+	return environment, nil
 }

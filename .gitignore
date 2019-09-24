@@ -6,4 +6,3 @@
 
 ./builds/apps/*
 !./builds/apps/.gitkeep
-!/builds/apps/

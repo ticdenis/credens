@@ -6,24 +6,42 @@ import (
 )
 
 type DomainError struct {
-	Code    string
-	Message string
-	Data    interface{}
+	code    string
+	message string
+	data    interface{}
 }
 
 func NewDomainError(code string, message string, data interface{}) *DomainError {
 	return &DomainError{code, message, data}
 }
 
-var domainErrorFormat = "DomainError [%s]: %s\n[data]: \"%v\""
+func (err DomainError) Code() string {
+	return err.code
+}
+
+func (err DomainError) Msg() string {
+	return err.message
+}
+
+func (err DomainError) Data() interface{} {
+	return err.data
+}
+
+func (err DomainError) Err() error {
+	return nil
+}
 
 func (err DomainError) Error() string {
-	return errors.New(
-		fmt.Sprintf(
-			domainErrorFormat,
-			err.Code,
-			err.Message,
-			err.Data,
-		),
-	).Error()
+	var format string
+	var args []interface{}
+
+	if err.Data() != nil {
+		format = `%s DomainError: %s [data]: %v`
+		args = []interface{}{err.Code(), err.Msg(), err.Data()}
+	} else {
+		format = `%s DomainError: %s`
+		args = []interface{}{err.Code(), err.Msg()}
+	}
+
+	return errors.New(fmt.Sprintf(format, args...)).Error()
 }

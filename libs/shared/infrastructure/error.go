@@ -6,26 +6,43 @@ import (
 )
 
 type InfrastructureError struct {
-	Code    string
-	Message string
-	Data    interface{}
-	Err     error
+	code    string
+	message string
+	data    interface{}
+	err     error
 }
 
 func NewInfrastructureError(code string, message string, data interface{}, err error) *InfrastructureError {
 	return &InfrastructureError{code, message, data, err}
 }
 
-var infrastructureErrorFormat = "InfrastructureError [%s]: %s\n[data]: \"%v\"\n[err]: %s"
+func (err InfrastructureError) Code() string {
+	return err.code
+}
+
+func (err InfrastructureError) Msg() string {
+	return err.message
+}
+
+func (err InfrastructureError) Data() interface{} {
+	return err.data
+}
+
+func (err InfrastructureError) Err() error {
+	return err.err
+}
 
 func (err InfrastructureError) Error() string {
-	return errors.New(
-		fmt.Sprintf(
-			infrastructureErrorFormat,
-			err.Code,
-			err.Message,
-			err.Data,
-			err.Err.Error(),
-		),
-	).Error()
+	var format string
+	var args []interface{}
+
+	if err.Data() != nil {
+		format = `%s InfrastructureError: %s [data]: %v`
+		args = []interface{}{err.Code(), err.Msg(), err.Data()}
+	} else {
+		format = `%s InfrastructureError: %s`
+		args = []interface{}{err.Code(), err.Msg()}
+	}
+
+	return errors.New(fmt.Sprintf(format, args...)).Error()
 }

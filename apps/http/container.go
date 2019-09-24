@@ -1,21 +1,16 @@
 package main
 
 import (
-	"credens/apps/http/controller"
-	"credens/apps/http/middleware"
 	"credens/libs/accounts/application/create"
 	"credens/libs/accounts/application/read"
 	"credens/libs/accounts/domain"
 	"credens/libs/accounts/infrastructure/persistence"
-	"credens/libs/shared/application/serializer"
 	"credens/libs/shared/application/serializer/json_iterator"
 	"credens/libs/shared/domain/bus"
 	sharedBus "credens/libs/shared/infrastructure/bus"
 	"credens/libs/shared/infrastructure/di"
-	"credens/libs/shared/infrastructure/logging"
 	"credens/libs/shared/infrastructure/logging/logrus"
-	"github.com/gorilla/mux"
-	"net/http"
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -37,7 +32,7 @@ const (
 	QueryBusKey                    = sharedDomainPath + "/bus/QueryBus"
 	QueryHandlerSliceKey           = sharedDomainPath + "/bus/QueryHandler[]"
 	JSONSerializerKey              = sharedAppPath + "/serializer/json_serializer/JSONSerializer"
-	HttpRouterKey                  = "github.com/gorilla/mux/Router"
+	HttpServerKey                  = "github.com/gin-gonic/gin"
 )
 
 func BuildContainer(env Environment) *di.Container {
@@ -104,33 +99,27 @@ func BuildContainer(env Environment) *di.Container {
 		},
 	)
 
-	ctx.Set(HttpRouterKey, func(container *di.Container) interface{} {
-		jsonSerializer := container.Get(JSONSerializerKey).(serializer.JSONSerializer)
+	ctx.Set(
+		HttpServerKey,
+		func(container *di.Container) interface{} {
+			var mode = gin.ReleaseMode
+			if env.Debug {
+				switch env.Env {
+				case "test", "testing":
+					mode = gin.TestMode
+				default:
+					mode = gin.DebugMode
+				}
+			}
+			gin.SetMode(mode)
 
-		router := mux.NewRouter().StrictSlash(true)
+			server := gin.Default()
 
-		router.HandleFunc("/healthz", controller.NewHealthzGetController(jsonSerializer)).
-			Methods(http.MethodOptions, http.MethodGet)
+			AddRoutes(server, container)
 
-		router.HandleFunc("/accounts", controller.NewCreateAccountPostController(
-			container.Get(CommandBusKey).(bus.CommandBus),
-			jsonSerializer,
-		)).Methods(http.MethodOptions, http.MethodPost)
-
-		router.HandleFunc("/accounts/{id}", controller.NewReadAccountGetController(
-			container.Get(QueryBusKey).(bus.QueryBus),
-			jsonSerializer,
-		)).Methods(http.MethodOptions, http.MethodGet)
-
-		router.Use(
-			mux.CORSMethodMiddleware(router),
-			middleware.NewLoggingMiddleware(
-				container.Get(LoggerKey).(logging.Logger),
-			),
-		)
-
-		return router
-	})
+			return *server
+		},
+	)
 
 	return ctx
 }

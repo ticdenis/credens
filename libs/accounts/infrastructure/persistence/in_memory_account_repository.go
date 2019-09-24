@@ -26,5 +26,7 @@ func (repo InMemoryAccountRepository) Search(id domain2.AccountId) (*domain2.Acc
 		}
 	}
 
-	return nil, domain.NewDomainError("404", "accounts not found", id)
+	return nil, domain.NewDomainError("404", "accounts not found", map[string]interface{}{
+		"id": id.Value(),
+	})
 }
