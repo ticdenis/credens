@@ -1,3 +1,8 @@
+# External
 .idea
+
+# Internal
 .env
-var
+
+./builds/apps/*
+!./builds/apps/.gitkeep

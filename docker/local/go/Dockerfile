@@ -7,13 +7,15 @@ RUN apk update && apk upgrade && \
 
 WORKDIR /go/src
 
-COPY go.mod go.sum vendor ./
+COPY Makefile go.mod go.sum ./
 
-RUN go mod download
+RUN make go-install
 
 COPY . .
 
-RUN make build-cli
-RUN make build-http
+#RUN make go-build-app name=cli
+#RUN make go-build-app name=grpc
+#RUN make go-build-app name=http
+#RUN make go-build-app name=rpc
 
 CMD bash

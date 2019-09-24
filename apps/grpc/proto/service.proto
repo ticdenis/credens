@@ -1,0 +1,19 @@
+// brew install protoc-gen-go
+// protoc --go_out=plugins=grpc,import_path=libs:. libs/**/*.proto
+
+syntax = "proto3";
+
+package proto;
+
+service APIService {
+    rpc SayHello (SayHelloRequest) returns (SayHelloResponse) {
+    }
+}
+
+message SayHelloRequest {
+    string to = 1;
+}
+
+message SayHelloResponse {
+    string result = 1;
+}
