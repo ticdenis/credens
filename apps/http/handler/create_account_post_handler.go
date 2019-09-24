@@ -17,7 +17,7 @@ func NewCreateAccountPostHandler(commandBus bus.CommandBus) *CreateAccountPostHa
 	return &CreateAccountPostHandler{commandBus: commandBus}
 }
 
-func (handler *CreateAccountPostHandler) validateQuery(context *gin.Context) *ResponseError {
+func (handler *CreateAccountPostHandler) validateCommand(context *gin.Context) *ResponseError {
 	var json = struct {
 		Id       string
 		Name     string `json:"name" binding:"required"`
@@ -40,7 +40,7 @@ func (handler *CreateAccountPostHandler) validateQuery(context *gin.Context) *Re
 }
 
 func (handler CreateAccountPostHandler) Handle(context *gin.Context) (*Response, *ResponseError) {
-	if err := handler.validateQuery(context); err != nil {
+	if err := handler.validateCommand(context); err != nil {
 		return nil, err
 	}
 
