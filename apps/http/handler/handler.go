@@ -25,6 +25,7 @@ func newResponse(status int, content map[string]interface{}) *Response {
 }
 
 type Handler interface {
+	validate(context *gin.Context) *ResponseError
 	Handle(context *gin.Context) (*Response, *ResponseError)
 }
 

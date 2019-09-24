@@ -17,7 +17,7 @@ func NewReadAccountGetHandler(queryBus bus.QueryBus) *ReadAccountGetHandler {
 	return &ReadAccountGetHandler{queryBus: queryBus}
 }
 
-func (handler *ReadAccountGetHandler) validateQuery(context *gin.Context) *ResponseError {
+func (handler *ReadAccountGetHandler) validate(context *gin.Context) *ResponseError {
 	accountId := context.Param("id")
 
 	if accountId == "" {
@@ -30,7 +30,7 @@ func (handler *ReadAccountGetHandler) validateQuery(context *gin.Context) *Respo
 }
 
 func (handler ReadAccountGetHandler) Handle(context *gin.Context) (*Response, *ResponseError) {
-	if err := handler.validateQuery(context); err != nil {
+	if err := handler.validate(context); err != nil {
 		return nil, err
 	}
 

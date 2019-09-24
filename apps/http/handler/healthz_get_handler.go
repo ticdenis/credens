@@ -12,6 +12,10 @@ func NewHealthzGetHandler() *HealthzGetHandler {
 	return &HealthzGetHandler{}
 }
 
+func (_ HealthzGetHandler) validate(context *gin.Context) *ResponseError {
+	return nil
+}
+
 func (_ HealthzGetHandler) Handle(context *gin.Context) (*Response, *ResponseError) {
 	return newResponse(
 		http.StatusOK,
