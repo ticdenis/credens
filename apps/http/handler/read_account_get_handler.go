@@ -21,7 +21,7 @@ func (handler *ReadAccountGetHandler) validate(context *gin.Context) *ResponseEr
 	accountId := context.Param("id")
 
 	if accountId == "" {
-		return newResponseError(errors.New("URL param 'id' is mandatory"))
+		return NewResponseError(errors.New("URL param 'id' is mandatory"))
 	}
 
 	handler.query = *read.NewReadAccountQuery(accountId)
@@ -36,10 +36,10 @@ func (handler ReadAccountGetHandler) Handle(context *gin.Context) (*Response, *R
 
 	res, err := handler.queryBus.Ask(handler.query)
 	if err != nil {
-		return nil, newResponseError(err)
+		return nil, NewResponseError(err)
 	}
 
-	return newResponse(
+	return NewResponse(
 		http.StatusOK,
 		gin.H{
 			"data": gin.H{

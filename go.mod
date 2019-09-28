@@ -8,7 +8,8 @@ require (
 	github.com/go-playground/universal-translator v0.16.0 // indirect
 	github.com/golang/protobuf v1.3.2
 	github.com/google/uuid v1.1.1
-	github.com/gorilla/mux v1.7.3
+	github.com/google/wire v0.3.0
+	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/json-iterator/go v1.1.7
 	github.com/leodido/go-urn v1.1.0 // indirect

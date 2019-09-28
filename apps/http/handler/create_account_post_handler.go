@@ -26,7 +26,7 @@ func (handler *CreateAccountPostHandler) validate(context *gin.Context) *Respons
 	}{Id: domain.NewAccountId(nil).Value()}
 
 	if err := context.ShouldBindJSON(&json); err != nil {
-		return newResponseError(err)
+		return NewResponseError(err)
 	}
 
 	handler.command = *create.NewCreateAccountCommand(
@@ -45,10 +45,10 @@ func (handler CreateAccountPostHandler) Handle(context *gin.Context) (*Response,
 	}
 
 	if err := handler.commandBus.Dispatch(handler.command); err != nil {
-		return nil, newResponseError(err)
+		return nil, NewResponseError(err)
 	}
 
-	return newResponse(
+	return NewResponse(
 		http.StatusCreated,
 		gin.H{
 			"data": gin.H{

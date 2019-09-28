@@ -1,39 +1,45 @@
-.PHONY: docker-build docker-shell go-install go-build-app go-run-app go-build-run-app go-test-app go-test-lib
-
-# Variables
+.PHONY: help available-apps available-libs build-docker shell install-deps install-dep build-app run-app build-run-app test-app test-lib
 
 DOCKER_IMAGE = credens/go
-DOCKER_VOLUME = credens_go_volume
-DOCKER_CONFIG_DIR = ./docker/
+DOCKER_VOLUME = credens_go_vol
+GO_ENVS = CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 
-GO_CGO_ENABLED = 0
-GO_BUILD_APPS_DIR = ./builds/apps/
-GO_APPS_DIR = ./apps/
-GO_APPS_TESTS_DIR = ./tests/apps/
-GO_LIBS_DIR = ./libs/
-GO_LIBS_TESTS_DIR = ./tests/libs/
+help: ## It displays this help.
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
-# Scripts
+available-apps: ## It shows available project's apps.
+	@ls ./apps
 
-docker-build:
-	@docker build --file ${DOCKER_CONFIG_DIR}local/go/Dockerfile -t ${DOCKER_IMAGE} .
+available-libs: ## It shows available project's libs.
+	@ls ./libs
 
-docker-shell:
-	@docker run --rm --name=${DOCKER_VOLUME} -v ${DOCKER_VOLUME}:/go/src -it ${DOCKER_IMAGE} bash
+build-docker: ## It builds a Docker image for this project.
+	@docker build -t ${DOCKER_IMAGE} .
 
-go-install:
-	@go mod download
+shell: ## It executes a shell inside a Docker container with optional "$args" arg.
+	@docker run --rm --name=${DOCKER_VOLUME} -v ${PWD}:/app -it ${args} ${DOCKER_IMAGE} bash
 
-go-build-app:
-	@CGO_ENABLED=${GO_CGO_ENABLED} go build -o ${GO_BUILD_APPS_DIR}${name} ${GO_APPS_DIR}${name}
+install-deps: ## It install go dependencies with go.mod file.
+	@go mod vendor && go mod download
 
-go-run-app:
-	@${GO_BUILD_APPS_DIR}${name}
+install-dep:  ## It install go dependency with "$pkg" arg.
+	@go get -t ${pkg} && go mod vendor && go mod download || \
+	echo "'pkg' argument is required to install a dependency"
 
-go-build-run-app: go-build-app go-run-app
+build-app: ## It builds app given with "$name" arg.
+	@${GO_ENVS} go build -mod=vendor -o ./builds/apps ./apps/${name} || \
+    echo "'name' argument is required to build an app"
 
-go-test-app:
-	@CGO_ENABLED=${GO_CGO_ENABLED} go test ${GO_APPS_TESTS_DIR}${name}/*
+run-app: ## It run app given with "$name" arg.
+	@./builds/apps/${name} || \
+	echo "'name' argument is required to run an app if exists"
 
-go-test-lib:
-	@CGO_ENABLED=${GO_CGO_ENABLED} go test ${GO_LIBS_TESTS_DIR}${name}/*
+build-run-app: build-app run-app ## It builds and runs app given with "$name" arg.
+
+test-app: ## It runs app tests given with "$name" arg.
+	@${GO_ENVS} go test ./tests/apps/${name}/* || \
+    echo "'name' argument is required to run app tests if they exists"
+
+test-lib: ## It runs lib tests given with "$name" arg.
+	@${GO_ENVS} go test ./tests/libs/${name}/* || \
+    echo "'name' argument is required to run lib tests if they exists"

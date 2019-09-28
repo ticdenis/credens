@@ -1,18 +1,18 @@
 package main
 
 import (
+	"credens/apps/http/config"
+	"credens/apps/http/server"
 	"credens/libs/shared/infrastructure/di"
-	"fmt"
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	env, err := LoadEnvironment()
+	env, err := config.LoadEnvironment()
 	if err != nil {
 		panic(err)
 	}
 
-	container := BuildContainer(*env)
+	container := config.BuildContainer(*env)
 
 	err = run(container, *env)
 	if err != nil {
@@ -20,8 +20,6 @@ func main() {
 	}
 }
 
-func run(container *di.Container, env Environment) error {
-	server := container.Get(HttpServerKey).(gin.Engine)
-
-	return server.Run(fmt.Sprintf(":%d", env.Port))
+func run(container *di.Container, env config.Environment) error {
+	return server.NewServer(env, container).Run(env.Port)
 }

@@ -17,7 +17,7 @@ func (_ HealthzGetHandler) validate(context *gin.Context) *ResponseError {
 }
 
 func (_ HealthzGetHandler) Handle(context *gin.Context) (*Response, *ResponseError) {
-	return newResponse(
+	return NewResponse(
 		http.StatusOK,
 		gin.H{
 			"data": gin.H{
