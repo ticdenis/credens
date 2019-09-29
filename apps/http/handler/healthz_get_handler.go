@@ -19,10 +19,12 @@ func (_ HealthzGetHandler) validate(context *gin.Context) *ResponseError {
 func (_ HealthzGetHandler) Handle(context *gin.Context) (*Response, *ResponseError) {
 	return NewResponse(
 		http.StatusOK,
-		gin.H{
-			"data": gin.H{
-				"type":       "service",
-				"attributes": gin.H{"status": "OK"},
+		map[string]interface{}{
+			"data": map[string]interface{}{
+				"type": "service",
+				"attributes": map[string]interface{}{
+					"status": "OK",
+				},
 			},
 		},
 	), nil

@@ -1,4 +1,4 @@
-.PHONY: help available-apps available-libs build-docker shell install-deps install-dep build-app run-app build-run-app test-app test-lib
+.PHONY: help available-apps available-libs build-docker shell install-deps install-dep build-app run-app build-run-app test-app coverage-app test-lib coverage-lib
 
 DOCKER_IMAGE = credens/go
 DOCKER_VOLUME = credens_go_vol
@@ -40,6 +40,14 @@ test-app: ## It runs app tests given with "$name" arg.
 	@${GO_ENVS} go test ./tests/apps/${name}/* || \
     echo "'name' argument is required to run app tests if they exists"
 
+coverage-app: ## It runs app tests with coverage given with "$name" arg.
+	@${GO_ENVS} go test ./tests/apps/${name}/* -cover || \
+    echo "'name' argument is required to run app tests with coverage if they exists"
+
 test-lib: ## It runs lib tests given with "$name" arg.
 	@${GO_ENVS} go test ./tests/libs/${name}/* || \
     echo "'name' argument is required to run lib tests if they exists"
+
+coverage-lib: ## It runs lib tests with coverage given with "$name" arg.
+	@${GO_ENVS} go test ./tests/libs/${name}/* -cover || \
+    echo "'name' argument is required to run lib tests with coverage if they exists"

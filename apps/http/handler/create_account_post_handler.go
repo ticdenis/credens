@@ -50,8 +50,8 @@ func (handler CreateAccountPostHandler) Handle(context *gin.Context) (*Response,
 
 	return NewResponse(
 		http.StatusCreated,
-		gin.H{
-			"data": gin.H{
+		map[string]interface{}{
+			"data": map[string]interface{}{
 				"type": "accounts",
 				"id":   handler.command.Data().(create.CreateAccountCommandData).Id,
 			},

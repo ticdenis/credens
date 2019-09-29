@@ -11,4 +11,6 @@ WORKDIR /app
 
 COPY . .
 
+ENV TERM=xterm-256color
+
 CMD bash

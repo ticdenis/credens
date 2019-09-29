@@ -1,4 +1,4 @@
-package handler__test
+package handler_test
 
 import (
 	"credens/apps/http/handler"
@@ -22,8 +22,6 @@ func TestHealthzGetHandler(t *testing.T) {
 	})
 
 	assert.Nil(t, actualErr)
-
 	assert.Equal(t, expectedRes.Status, actualRes.Status)
-
 	assert.Equal(t, fmt.Sprintf("%+v", expectedRes.Content), fmt.Sprintf("%+v", actualRes.Content))
 }

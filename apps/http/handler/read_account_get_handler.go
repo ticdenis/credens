@@ -41,8 +41,8 @@ func (handler ReadAccountGetHandler) Handle(context *gin.Context) (*Response, *R
 
 	return NewResponse(
 		http.StatusOK,
-		gin.H{
-			"data": gin.H{
+		map[string]interface{}{
+			"data": map[string]interface{}{
 				"type":       "accounts",
 				"id":         handler.query.Data().(read.ReadAccountQueryData).Id,
 				"attributes": res,
