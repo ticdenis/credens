@@ -5,5 +5,5 @@
 .env
 
 ./builds/apps/*
-./builds/docker
+./builds/docker/*
 !./builds/apps/.gitkeep
