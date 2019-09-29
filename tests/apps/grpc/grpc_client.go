@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	logger := logrus.NewLogger()
+	logger := logrus.NewLogrusLogger()
 	address := fmt.Sprintf("%s:%d", "localhost", 4041)
 
 	logger.Log(fmt.Sprintf("Listening insecure grpc server at %s...", address))

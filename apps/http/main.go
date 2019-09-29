@@ -1,9 +1,11 @@
+// make build-run-app name=http
+
 package main
 
 import (
 	"credens/apps/http/config"
 	"credens/apps/http/server"
-	"credens/libs/shared/infrastructure/di"
+	"github.com/defval/inject"
 )
 
 func main() {
@@ -12,7 +14,10 @@ func main() {
 		panic(err)
 	}
 
-	container := config.BuildContainer(*env)
+	container, err := config.BuildContainer(*env)
+	if err != nil {
+		panic(err)
+	}
 
 	err = run(container, *env)
 	if err != nil {
@@ -20,6 +25,11 @@ func main() {
 	}
 }
 
-func run(container *di.Container, env config.Environment) error {
-	return server.NewServer(env, container).Run(env.Port)
+func run(container *inject.Container, env config.Environment) error {
+	svc, err := server.NewServer(env, container)
+	if err != nil {
+		return err
+	}
+
+	return svc.Run(env.Port)
 }

@@ -10,16 +10,8 @@ type SyncQueryBus struct {
 	queryHandlers []bus.QueryHandler
 }
 
-func NewSyncQueryBus(queryHandlers []interface{}) bus.QueryBus {
-	var handlers []bus.QueryHandler
-
-	for _, handler := range queryHandlers {
-		if queryHandler, ok := handler.(bus.QueryHandler); ok {
-			handlers = append(handlers, queryHandler)
-		}
-	}
-
-	return &SyncQueryBus{handlers}
+func NewSyncQueryBus(queryHandlers []bus.QueryHandler) *SyncQueryBus {
+	return &SyncQueryBus{queryHandlers}
 }
 
 func (bus *SyncQueryBus) Ask(query bus.Query) (interface{}, error) {

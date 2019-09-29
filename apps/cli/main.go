@@ -1,17 +1,23 @@
+// make build-run-app name=cli args="help"
+
 package main
 
 import (
-	"credens/libs/shared/infrastructure/di"
-	"github.com/spf13/cobra"
+	"credens/apps/cli/command"
+	"credens/apps/cli/config"
+	"github.com/defval/inject"
 )
 
 func main() {
-	env, err := LoadEnvironment()
+	env, err := config.LoadEnvironment()
 	if err != nil {
 		panic(err)
 	}
 
-	container := BuildContainer(*env)
+	container, err := config.BuildContainer(*env)
+	if err != nil {
+		panic(err)
+	}
 
 	err = run(container, *env)
 	if err != nil {
@@ -19,8 +25,11 @@ func main() {
 	}
 }
 
-func run(container *di.Container, env Environment) error {
-	rootCmd := container.Get(RootCmdKey).(cobra.Command)
+func run(container *inject.Container, env config.Environment) error {
+	var commands []command.Command
+	if err := container.Extract(&commands); err != nil {
+		return err
+	}
 
-	return rootCmd.Execute()
+	return command.NewRootCmd(commands).Execute()
 }

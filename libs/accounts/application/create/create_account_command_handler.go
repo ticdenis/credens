@@ -2,28 +2,43 @@ package create
 
 import (
 	"credens/libs/accounts/domain"
-	bus2 "credens/libs/shared/domain/bus"
+	"credens/libs/shared/domain/bus"
 )
 
 type CreateAccountCommandHandler struct {
-	svc CreateAccountService
+	accountRepository domain.AccountRepository
+	eventPublisher    bus.EventPublisher
 }
 
-func NewCreateAccountCommandHandler(createAccountService CreateAccountService) *CreateAccountCommandHandler {
-	return &CreateAccountCommandHandler{createAccountService}
+func NewCreateAccountCommandHandler(
+	accountRepository domain.AccountRepository,
+	eventPublisher bus.EventPublisher,
+) *CreateAccountCommandHandler {
+	return &CreateAccountCommandHandler{
+		accountRepository,
+		eventPublisher,
+	}
 }
 
 func (handler CreateAccountCommandHandler) SubscribedTo() string {
 	return commandName
 }
 
-func (handler CreateAccountCommandHandler) Execute(command bus2.Command) error {
+func (handler CreateAccountCommandHandler) Execute(command bus.Command) error {
 	data := command.Data().(CreateAccountCommandData)
 
-	return handler.svc.Execute(
+	aggregate := domain.NewAccount(
 		domain.NewAccountId(data.Id),
 		domain.NewAccountName(data.Name),
 		domain.NewAccountUsername(data.Username),
 		domain.NewAccountPassword(data.Password),
 	)
+
+	if err := handler.accountRepository.Add(aggregate); err != nil {
+		return err
+	}
+
+	handler.eventPublisher.Publish(aggregate.PullDomainEvents()...)
+
+	return nil
 }

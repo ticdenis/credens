@@ -1,17 +1,16 @@
 package fmt
 
 import (
-	"credens/libs/shared/infrastructure/logging"
 	"fmt"
 )
 
-type Logger struct {
+type FmtLogger struct {
 }
 
-func (logger *Logger) Log(msg string) {
+func NewFmtLogger() *FmtLogger {
+	return &FmtLogger{}
+}
+
+func (logger *FmtLogger) Log(msg string) {
 	fmt.Printf(msg)
-}
-
-func NewLogger() logging.Logger {
-	return new(Logger)
 }

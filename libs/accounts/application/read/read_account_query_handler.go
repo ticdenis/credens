@@ -2,27 +2,30 @@ package read
 
 import (
 	"credens/libs/accounts/domain"
-	bus2 "credens/libs/shared/domain/bus"
+	"credens/libs/shared/domain/bus"
 )
 
 type ReadAccountQueryHandler struct {
-	svc ReadAccountService
+	accountRepository domain.AccountRepository
 }
 
 func NewReadAccountQueryHandler(
-	readAccountService ReadAccountService,
+	accountRepository domain.AccountRepository,
 ) *ReadAccountQueryHandler {
-	return &ReadAccountQueryHandler{readAccountService}
+	return &ReadAccountQueryHandler{accountRepository}
 }
 
 func (handler ReadAccountQueryHandler) SubscribedTo() string {
 	return queryName
 }
 
-func (handler ReadAccountQueryHandler) Execute(query bus2.Query) (interface{}, error) {
+func (handler ReadAccountQueryHandler) Execute(query bus.Query) (interface{}, error) {
 	data := query.Data().(ReadAccountQueryData)
 
-	return handler.svc.Execute(
-		domain.NewAccountId(data.Id),
-	)
+	aggregate, err := handler.accountRepository.Search(domain.NewAccountId(data.Id))
+	if err != nil {
+		return nil, err
+	}
+
+	return *NewReadAccountResponse(*aggregate), nil
 }

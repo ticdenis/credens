@@ -2,8 +2,8 @@ package server
 
 import (
 	"credens/apps/http/config"
-	"credens/libs/shared/infrastructure/di"
 	"fmt"
+	"github.com/defval/inject"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,7 +11,7 @@ type Server struct {
 	engine *gin.Engine
 }
 
-func NewServer(env config.Environment, container *di.Container) *Server {
+func NewServer(env config.Environment, container *inject.Container) (*Server, error) {
 	var mode = gin.ReleaseMode
 	if env.Debug {
 		switch env.Env {
@@ -25,9 +25,12 @@ func NewServer(env config.Environment, container *di.Container) *Server {
 
 	engine := gin.Default()
 
-	addRoutes(engine, container)
+	err := addRoutes(engine, container)
+	if err != nil {
+		return nil, err
+	}
 
-	return &Server{engine}
+	return &Server{engine}, nil
 }
 
 func (server *Server) Run(port int) error {

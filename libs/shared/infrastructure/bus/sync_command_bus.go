@@ -10,16 +10,8 @@ type SyncCommandBus struct {
 	commandHandlers []bus.CommandHandler
 }
 
-func NewSyncCommandBus(commandHandlers []interface{}) bus.CommandBus {
-	var handlers []bus.CommandHandler
-
-	for _, handler := range commandHandlers {
-		if commandHandler, ok := handler.(bus.CommandHandler); ok {
-			handlers = append(handlers, commandHandler)
-		}
-	}
-
-	return &SyncCommandBus{handlers}
+func NewSyncCommandBus(commandHandlers []bus.CommandHandler) *SyncCommandBus {
+	return &SyncCommandBus{commandHandlers}
 }
 
 func (commandBus SyncCommandBus) Dispatch(command bus.Command) error {

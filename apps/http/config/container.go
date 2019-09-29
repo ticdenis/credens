@@ -1,7 +1,7 @@
 package config
 
 import (
-	"credens/libs/shared/infrastructure/di"
+	"github.com/defval/inject"
 
 	accountAppCreate "credens/libs/accounts/application/create"
 	accountAppRead "credens/libs/accounts/application/read"
@@ -10,89 +10,46 @@ import (
 
 	sharedDomainBus "credens/libs/shared/domain/bus"
 	sharedInfraBus "credens/libs/shared/infrastructure/bus"
-	sharedInfraLogging "credens/libs/shared/infrastructure/logging/logrus"
+	shareInfraLogging "credens/libs/shared/infrastructure/logging"
+	sharedInfraLoggingLogrus "credens/libs/shared/infrastructure/logging/logrus"
 )
 
-const (
-	AccountRepositoryKey = "AccountRepository"
+func BuildContainer(env Environment) (*inject.Container, error) {
+	return inject.New(
+		inject.Provide(
+			sharedInfraLoggingLogrus.NewLogrusLogger,
+			inject.As(new(shareInfraLogging.Logger)),
+		),
 
-	CommandBusKey         = "CommandBus"
-	CommandHandlerDictKey = "CommandHandler[]"
+		inject.Provide(
+			accountInfraPersistence.NewInMemoryAccountRepository([]*accountDomain.Account{}),
+			inject.As(new(accountDomain.AccountRepository)),
+		),
 
-	QueryBusKey          = "QueryBus"
-	QueryHandlerSliceKey = "QueryHandler[]"
+		inject.Provide(
+			sharedInfraBus.NewInMemoryEventPublisher,
+			inject.As(new(sharedDomainBus.EventPublisher)),
+		),
 
-	EventPublisherKey = "EventPublisher"
 
-	LoggerKey = "Logger"
-)
+		inject.Provide(
+			accountAppCreate.NewCreateAccountCommandHandler,
+			inject.As(new(sharedDomainBus.CommandHandler)),
+		),
 
-func BuildContainer(env Environment) *di.Container {
-	ctx := di.NewContainer()
+		inject.Provide(
+			sharedInfraBus.NewSyncCommandBus,
+			inject.As(new(sharedDomainBus.CommandBus)),
+		),
 
-	setCommonDependencies(ctx, env)
-	setCommandDependencies(ctx, env)
-	setQueryDependencies(ctx, env)
+		inject.Provide(
+			accountAppRead.NewReadAccountQueryHandler,
+			inject.As(new(sharedDomainBus.QueryHandler)),
+		),
 
-	return ctx
-}
-
-func setCommonDependencies(ctx *di.Container, env Environment) {
-	ctx.Set(LoggerKey, func(_ *di.Container) interface{} {
-		return sharedInfraLogging.NewLogger()
-	})
-
-	ctx.Set(AccountRepositoryKey, func(_ *di.Container) interface{} {
-		return *accountInfraPersistence.NewInMemoryAccountRepository([]*accountDomain.Account{})
-	})
-
-	ctx.Set(EventPublisherKey, func(_ *di.Container) interface{} {
-		return *sharedInfraBus.NewInMemoryEventPublisher()
-	})
-}
-
-func setCommandDependencies(ctx *di.Container, env Environment) {
-	ctx.SetEmptyDict(CommandHandlerDictKey)
-
-	ctx.SetInDict(
-		CommandHandlerDictKey,
-		"CreateAccountCommandHandler",
-		func(container *di.Container) interface{} {
-			return *accountAppCreate.NewCreateAccountCommandHandler(
-				*accountAppCreate.NewCreateAccountService(
-					container.Get(AccountRepositoryKey).(accountDomain.AccountRepository),
-					container.Get(EventPublisherKey).(sharedDomainBus.EventPublisher),
-				),
-			)
-		},
-	)
-
-	ctx.Set(
-		CommandBusKey,
-		func(container *di.Container) interface{} {
-			return sharedInfraBus.NewSyncCommandBus(container.GetDictAsSlice(CommandHandlerDictKey))
-		},
-	)
-}
-
-func setQueryDependencies(ctx *di.Container, env Environment) {
-	ctx.SetEmptySlice(QueryHandlerSliceKey)
-
-	ctx.SetInSlice(
-		QueryHandlerSliceKey,
-		func(container *di.Container) interface{} {
-			return accountAppRead.NewReadAccountQueryHandler(
-				*accountAppRead.NewReadAccountService(
-					container.Get(AccountRepositoryKey).(accountDomain.AccountRepository),
-				),
-			)
-		},
-	)
-
-	ctx.Set(
-		QueryBusKey,
-		func(container *di.Container) interface{} {
-			return sharedInfraBus.NewSyncQueryBus(container.GetSlice(QueryHandlerSliceKey))
-		},
+		inject.Provide(
+			sharedInfraBus.NewSyncQueryBus,
+			inject.As(new(sharedDomainBus.QueryBus)),
+		),
 	)
 }

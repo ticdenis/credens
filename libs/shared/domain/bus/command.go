@@ -9,7 +9,6 @@ type Command interface {
 var CommandMessageType = "command"
 
 type CommandBus interface {
-	// command Command
 	Dispatch(command Command) error
 }
 

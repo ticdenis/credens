@@ -1,23 +1,31 @@
 package server
 
 import (
-	"credens/apps/http/config"
 	"credens/apps/http/handler"
 	"credens/apps/http/handler/middleware"
 	"credens/libs/shared/domain/bus"
-	"credens/libs/shared/infrastructure/di"
+	"github.com/defval/inject"
 	"github.com/gin-gonic/gin"
 )
 
-func addRoutes(server *gin.Engine, container *di.Container) {
+func addRoutes(server *gin.Engine, container *inject.Container) error {
 	handlerMiddleware := middleware.NewJSONHandlerMiddleware()
 
-	commandBus := container.Get(config.CommandBusKey).(bus.CommandBus)
-	queryBus := container.Get(config.QueryBusKey).(bus.QueryBus)
+	var commandBus bus.CommandBus
+	if err := container.Extract(&commandBus); err != nil {
+		return err
+	}
+
+	var queryBus bus.QueryBus
+	if err := container.Extract(&queryBus); err != nil {
+		return err
+	}
 
 	server.GET("/healthz", handlerMiddleware.Handle(handler.NewHealthzGetHandler()))
 
 	server.GET("/accounts/:id", handlerMiddleware.Handle(handler.NewReadAccountGetHandler(queryBus)))
 
 	server.POST("/accounts", handlerMiddleware.Handle(handler.NewCreateAccountPostHandler(commandBus)))
+
+	return nil
 }

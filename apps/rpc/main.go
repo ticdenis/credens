@@ -1,22 +1,26 @@
 package main
 
 import (
+	"credens/apps/rpc/config"
 	"credens/apps/rpc/service"
-	"credens/libs/shared/infrastructure/di"
 	"credens/libs/shared/infrastructure/logging"
 	"fmt"
+	"github.com/defval/inject"
 	"net"
 	"net/http"
 	"net/rpc"
 )
 
 func main() {
-	env, err := LoadEnvironment()
+	env, err := config.LoadEnvironment()
 	if err != nil {
 		panic(err)
 	}
 
-	container := BuildContainer(*env)
+	container, err := config.BuildContainer(*env)
+	if err != nil {
+		panic(err)
+	}
 
 	err = run(container, *env)
 	if err != nil {
@@ -24,8 +28,11 @@ func main() {
 	}
 }
 
-func run(container *di.Container, env Environment) error {
-	logger := container.Get(LoggerKey).(logging.Logger)
+func run(container *inject.Container, env config.Environment) error {
+	var logger logging.Logger
+	if err := container.Extract(&logger); err != nil {
+		return err
+	}
 
 	rcvr := new(service.RPCAPIService)
 

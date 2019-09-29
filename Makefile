@@ -30,11 +30,11 @@ build-app: ## It builds app given with "$name" arg.
 	@${GO_ENVS} go build -mod=vendor -o ./builds/apps ./apps/${name} || \
     echo "'name' argument is required to build an app"
 
-run-app: ## It run app given with "$name" arg.
-	@./builds/apps/${name} || \
+run-app: ## It run app given with "$name" arg and "$args" optional arg.
+	@./builds/apps/${name} ${args} || \
 	echo "'name' argument is required to run an app if exists"
 
-build-run-app: build-app run-app ## It builds and runs app given with "$name" arg.
+build-run-app: build-app run-app ## It builds and runs app given with "$name" arg and "$args" optional arg.
 
 test-app: ## It runs app tests given with "$name" arg.
 	@${GO_ENVS} go test ./tests/apps/${name}/* || \
