@@ -4,6 +4,4 @@
 # Internal
 .env
 
-./builds/apps/*
-!./builds/apps/.gitkeep
-!/builds/docker/
+./builds
