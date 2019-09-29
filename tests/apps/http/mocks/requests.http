@@ -31,7 +31,7 @@ Content-Type: application/json
 }
 
 ### 404 OK - {"data": "...", "errors:" []}
-GET http://localhost:8000/accounts/E86A5F28-E17D-40D8-9018-7B39B8D86822
+GET http://localhost:8000/accounts/98524e4f-fa1e-465b-8fc0-6ab20a60d379
 Content-Type: application/json
 
 ###

@@ -2,6 +2,7 @@
 
 DOCKER_IMAGE = credens/go
 DOCKER_VOLUME = credens_go_vol
+DOCKER_NETWORK = credens_go_network
 GO_ENVS = CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 
 help: ## It displays this help.
@@ -13,11 +14,21 @@ available-apps: ## It shows available project's apps.
 available-libs: ## It shows available project's libs.
 	@ls ./libs
 
+up-services: ## It ups Docker services defined at docker-compose.yml file.
+	@docker-compose up -d
+
+down-services: ## It downs Docker services defined at docker-compose.yml file.
+	@docker-compose down
+
 build-docker: ## It builds a Docker image for this project.
+	@docker network inspect ${DOCKER_NETWORK} &>/dev/null || docker network create ${DOCKER_NETWORK}
 	@docker build -t ${DOCKER_IMAGE} .
 
 shell: ## It executes a shell inside a Docker container with optional "$args" arg.
-	@docker run --rm --name=${DOCKER_VOLUME} -v ${PWD}:/app -it ${args} ${DOCKER_IMAGE} bash
+	@docker run --rm --network ${DOCKER_NETWORK} --name=${DOCKER_VOLUME} -v ${PWD}:/app -it ${args} ${DOCKER_IMAGE} bash
+
+shell-service: ## It executes a shell inside a Docker service container with optional "$name" arg.
+	@docker exec -it ${name} bash
 
 install-deps: ## It install go dependencies with go.mod file.
 	@go mod vendor && go mod download

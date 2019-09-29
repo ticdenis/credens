@@ -1,12 +1,13 @@
 package config
 
 import (
+	"database/sql"
 	"github.com/defval/inject"
 
 	accountAppCreate "credens/libs/accounts/application/create"
 	accountAppRead "credens/libs/accounts/application/read"
 	accountDomain "credens/libs/accounts/domain"
-	accountInfraPersistence "credens/libs/accounts/infrastructure/persistence"
+	accountInfraPersistence "credens/libs/accounts/infrastructure/persistence/mysql"
 
 	sharedDomainBus "credens/libs/shared/domain/bus"
 	sharedInfraBus "credens/libs/shared/infrastructure/bus"
@@ -14,7 +15,7 @@ import (
 	sharedInfraLoggingLogrus "credens/libs/shared/infrastructure/logging/logrus"
 )
 
-func BuildContainer(env Environment) (*inject.Container, error) {
+func BuildContainer(env Environment, db *sql.DB) (*inject.Container, error) {
 	return inject.New(
 		inject.Provide(
 			sharedInfraLoggingLogrus.NewLogrusLogger,
@@ -22,7 +23,7 @@ func BuildContainer(env Environment) (*inject.Container, error) {
 		),
 
 		inject.Provide(
-			accountInfraPersistence.NewInMemoryAccountRepository([]*accountDomain.Account{}),
+			accountInfraPersistence.NewMysqlAccountRepository(db),
 			inject.As(new(accountDomain.AccountRepository)),
 		),
 
