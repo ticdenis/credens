@@ -8,32 +8,40 @@ import (
 	"credens/apps/http/server"
 	"credens/libs/shared/infrastructure/persistence"
 	"github.com/defval/inject"
+	"github.com/pkg/errors"
 )
 
 func main() {
 	env, err := config.LoadEnvironment()
-	if err != nil {
-		panic(err)
-	}
+	panicIfError(err, "Error loading environment!")
 
 	container, err := config.BuildContainer(*env)
-	if err != nil {
-		panic(err)
-	}
+	panicIfError(err, "Error building container!")
 
 	err = run(container, *env)
+	panicIfError(err, "Error running app!")
+}
+
+func panicIfError(err error, msg string) {
 	if err != nil {
-		panic(err)
+		panic(errors.Wrap(err, msg))
 	}
 }
 
 func run(container *inject.Container, env config.Environment) error {
-	err := runSQLDatabase(container, env)
-	if err != nil {
-		return err
+	if err := runSQLDatabase(container, env); err != nil {
+		return errors.Wrap(err, "Error running SQL database!")
 	}
 
-	return runHTTPServer(container, env)
+	if err := runSQLMigration(container, env); err != nil {
+		return errors.Wrap(err, "Error running SQL migrations!")
+	}
+
+	if err := runHTTPServer(container, env); err != nil {
+		return errors.Wrap(err, "Error running HTTP server!")
+	}
+
+	return nil
 }
 
 func runSQLDatabase(container *inject.Container, env config.Environment) error {
@@ -41,15 +49,17 @@ func runSQLDatabase(container *inject.Container, env config.Environment) error {
 	if err := container.Extract(&sqlDB); err != nil {
 		return err
 	}
+	return sqlDB.Run();
+}
 
-	if err := sqlDB.Run(); err != nil {
-		return err
-	}
-
+func runSQLMigration(container *inject.Container, env config.Environment) error {
 	if env.Sql.Migrate {
-		return sql_migration.Migrate(sqlDB.DB())
+		var sqlMigrator sql_migration.SQLMigrator
+		if err := container.Extract(&sqlMigrator); err != nil {
+			return err
+		}
+		return sqlMigrator.Run()
 	}
-
 	return nil
 }
 

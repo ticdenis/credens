@@ -1,6 +1,7 @@
 package sql_migration
 
 import (
+	db "credens/libs/shared/infrastructure/persistence"
 	"database/sql"
 	"github.com/lopezator/migrator"
 )
@@ -17,17 +18,30 @@ func createSimpleMigration(name, query string, args ...interface{}) *migrator.Mi
 	}
 }
 
-func getMigrations() migrator.Option {
-	return migrator.Migrations(
-		New1569878041CreateAccountsTableMigration(),
-	)
+type (
+	SQLMigrator interface {
+		Run() error
+	}
+
+	SQLMigratorWrapper struct {
+		sql db.SQLDb
+	}
+)
+
+func NewSQLMigratorWrapper(sql db.SQLDb) *SQLMigratorWrapper {
+	return &SQLMigratorWrapper{sql: sql}
 }
 
-func Migrate(db *sql.DB) error {
-	sqlMigrator, err := migrator.New(getMigrations())
+func (m *SQLMigratorWrapper) Run() error {
+	sqlMigrator, err := migrator.New(m.getMigrations())
 	if err != nil {
 		return err
 	}
+	return sqlMigrator.Migrate(m.sql.DB())
+}
 
-	return sqlMigrator.Migrate(db)
+func (m *SQLMigratorWrapper) getMigrations() migrator.Option {
+	return migrator.Migrations(
+		New1569878041CreateAccountsTableMigration(),
+	)
 }

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"credens/apps/http/migration/sql_migration"
 	"github.com/defval/inject"
 
 	accountAppCreate "credens/libs/accounts/application/create"
@@ -20,6 +21,11 @@ func BuildContainer(env Environment) (*inject.Container, error) {
 		inject.Provide(
 			NewMySQLDBWrapper(env),
 			inject.As(new(sharedInfraPersistence.SQLDb)),
+		),
+
+		inject.Provide(
+			sql_migration.NewSQLMigratorWrapper,
+			inject.As(new(sql_migration.SQLMigrator)),
 		),
 
 		inject.Provide(
