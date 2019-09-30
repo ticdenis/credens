@@ -22,15 +22,15 @@ func main() {
 }
 
 func run(container *inject.Container, env config.Environment) error {
-	if err := runnable.NewHttpServerRunnable().Run(container, env); err != nil {
+	if err := runnable.NewSQLDatabaseRunnable().Run(container, env); err != nil {
 		return errors.Wrap(err, "Error running SQL database!")
 	}
 
-	if err := runnable.NewSQLDatabaseRunnable().Run(container, env); err != nil {
+	if err := runnable.NewSQLMigrationRunnable().Run(container, env); err != nil {
 		return errors.Wrap(err, "Error running SQL migrations!")
 	}
 
-	if err := runnable.NewSQLMigrationRunnable().Run(container, env); err != nil {
+	if err := runnable.NewHttpServerRunnable().Run(container, env); err != nil {
 		return errors.Wrap(err, "Error running HTTP server!")
 	}
 
