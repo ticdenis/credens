@@ -1,10 +1,11 @@
 package server
 
 import (
-	"credens/apps/http/config"
 	"fmt"
 	"github.com/defval/inject"
 	"github.com/gin-gonic/gin"
+
+	"credens/apps/http/config"
 )
 
 type Server struct {

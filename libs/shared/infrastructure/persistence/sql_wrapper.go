@@ -19,10 +19,6 @@ type (
 	}
 )
 
-func newSQLWrapper(driverName string, dsn string) *SQLDBWrapper {
-	return &SQLDBWrapper{driverName: driverName, dsn: dsn}
-}
-
 func (wrapper *SQLDBWrapper) Run() error {
 	if err := wrapper.open(); err != nil {
 		return err
@@ -61,5 +57,5 @@ func (wrapper *SQLDBWrapper) DB() *sql.DB {
 }
 
 func NewSQLWrapper(driverName, dsn string) *SQLDBWrapper {
-	return newSQLWrapper(driverName, dsn)
+	return &SQLDBWrapper{driverName: driverName, dsn: dsn}
 }

@@ -39,31 +39,24 @@ install-deps: ## It install go dependencies with go.mod file.
 	@go mod vendor && go mod download
 
 install-dep:  ## It install go dependency with "$pkg" arg.
-	@go get -t ${pkg} && go mod vendor && go mod download || \
-	echo "'pkg' argument is required to install a dependency"
+	@go get -t ${pkg} && go mod vendor && go mod download
 
 build-app: ## It builds app given with "$name" arg.
-	@${GO_ENVS} go build -mod=vendor -o ./var/builds/apps ./apps/${name} || \
-    echo "'name' argument is required to build an app"
+	@${GO_ENVS} go build -mod=vendor -o ./var/builds/apps ./apps/${name}
 
 run-app: ## It run app given with "$name" arg and "$args" optional arg.
-	@./var/builds/apps/${name} ${args} || \
-	echo "'name' argument is required to run an app if exists"
+	@./var/builds/apps/${name} ${args}
 
 build-run-app: build-app run-app ## It builds and runs app given with "$name" arg and "$args" optional arg.
 
 test-app: ## It runs app tests given with "$name" arg.
-	@${GO_ENVS} go test ./tests/apps/${name}/* || \
-    echo "'name' argument is required to run app tests if they exists"
+	@${GO_ENVS} go test ./tests/apps/${name}/*
 
 coverage-app: ## It runs app tests with coverage given with "$name" arg.
-	@${GO_ENVS} go test ./tests/apps/${name}/* -cover || \
-    echo "'name' argument is required to run app tests with coverage if they exists"
+	@${GO_ENVS} go test ./tests/apps/${name}/* -cover
 
 test-lib: ## It runs lib tests given with "$name" arg.
-	@${GO_ENVS} go test ./tests/libs/${name}/* || \
-    echo "'name' argument is required to run lib tests if they exists"
+	@${GO_ENVS} go test ./tests/libs/${name}/*
 
 coverage-lib: ## It runs lib tests with coverage given with "$name" arg.
-	@${GO_ENVS} go test ./tests/libs/${name}/* -cover || \
-    echo "'name' argument is required to run lib tests with coverage if they exists"
+	@${GO_ENVS} go test ./tests/libs/${name}/* -cover

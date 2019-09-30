@@ -1,11 +1,13 @@
 package server
 
 import (
-	"credens/apps/http/handler"
-	"credens/apps/http/handler/middleware"
-	"credens/libs/shared/domain/bus"
 	"github.com/defval/inject"
 	"github.com/gin-gonic/gin"
+
+	"credens/libs/shared/domain/bus"
+
+	"credens/apps/http/handler"
+	"credens/apps/http/handler/middleware"
 )
 
 func addRoutes(server *gin.Engine, container *inject.Container) error {

@@ -18,6 +18,7 @@ type Environment struct {
 		Host     string
 		Port     int
 		Database string
+		Migrate  bool
 	}
 }
 
@@ -81,6 +82,12 @@ func LoadEnvironment() (*Environment, error) {
 		return nil, errors.New("MYSQL_DATABASE env required!")
 	}
 	environment.Sql.Database = sqlDatabase
+
+	sqlMigrate, err := strconv.ParseBool(os.Getenv("MYSQL_MIGRATE"))
+	if err != nil {
+		environment.Sql.Migrate = false
+	}
+	environment.Sql.Migrate = sqlMigrate
 
 	return environment, nil
 }

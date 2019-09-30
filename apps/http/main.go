@@ -3,12 +3,11 @@
 package main
 
 import (
-	"github.com/defval/inject"
-
-	"credens/libs/shared/infrastructure/persistence"
-
 	"credens/apps/http/config"
+	"credens/apps/http/migration/sql_migration"
 	"credens/apps/http/server"
+	"credens/libs/shared/infrastructure/persistence"
+	"github.com/defval/inject"
 )
 
 func main() {
@@ -29,23 +28,32 @@ func main() {
 }
 
 func run(container *inject.Container, env config.Environment) error {
-	err := runSQLDatabase(container)
+	err := runSQLDatabase(container, env)
 	if err != nil {
 		return err
 	}
 
-	return runHTTPServer(env, container)
+	return runHTTPServer(container, env)
 }
 
-func runSQLDatabase(container *inject.Container) error {
-	var sql db.SQLDb
-	if err := container.Extract(&sql); err != nil {
+func runSQLDatabase(container *inject.Container, env config.Environment) error {
+	var sqlDB db.SQLDb
+	if err := container.Extract(&sqlDB); err != nil {
 		return err
 	}
-	return sql.Run()
+
+	if err := sqlDB.Run(); err != nil {
+		return err
+	}
+
+	if env.Sql.Migrate {
+		return sql_migration.Migrate(sqlDB.DB())
+	}
+
+	return nil
 }
 
-func runHTTPServer(env config.Environment, container *inject.Container) error {
+func runHTTPServer(container *inject.Container, env config.Environment) error {
 	svc, err := server.NewServer(env, container)
 	if err != nil {
 		return err
