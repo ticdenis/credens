@@ -21,6 +21,7 @@ down-services: ## It downs Docker services defined at docker-compose.yml file.
 	@docker-compose down
 
 build-docker: ## It builds a Docker image for this project.
+	@mkdir -p var/builds/apps && mkdir -p var/dockers/db
 	@docker network inspect ${DOCKER_NETWORK} &>/dev/null || docker network create ${DOCKER_NETWORK}
 	@docker build -t ${DOCKER_IMAGE} .
 
@@ -38,11 +39,11 @@ install-dep:  ## It install go dependency with "$pkg" arg.
 	echo "'pkg' argument is required to install a dependency"
 
 build-app: ## It builds app given with "$name" arg.
-	@${GO_ENVS} go build -mod=vendor -o ./builds/apps ./apps/${name} || \
+	@${GO_ENVS} go build -mod=vendor -o ./var/builds/apps ./apps/${name} || \
     echo "'name' argument is required to build an app"
 
 run-app: ## It run app given with "$name" arg and "$args" optional arg.
-	@./builds/apps/${name} ${args} || \
+	@./var/builds/apps/${name} ${args} || \
 	echo "'name' argument is required to run an app if exists"
 
 build-run-app: build-app run-app ## It builds and runs app given with "$name" arg and "$args" optional arg.

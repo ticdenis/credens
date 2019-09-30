@@ -6,14 +6,13 @@ services:
       context: dockers/mysql
     ports:
       - "3333:3306"
+    env_file:
+      - .env
     environment:
       MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: credens_mysql
-      MYSQL_USER: credens
-      MYSQL_PASSWORD: secret
     volumes:
-      - "./builds/docker/mysql:/var/lib/mysql"
-      - "./builds/docker/mysql:/var/log"
+      - "./var/dockers/db/mysql:/var/lib/mysql"
+      - "./var/dockers/db/mysql:/var/log"
 networks:
     default:
       external:

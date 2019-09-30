@@ -4,4 +4,4 @@
 # Internal
 .env
 
-./builds
+./var
