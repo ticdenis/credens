@@ -1,8 +1,8 @@
 package infrastructure
 
 import (
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
 )
 
 type InfrastructureError struct {
@@ -45,4 +45,10 @@ func (err InfrastructureError) Error() string {
 	}
 
 	return errors.New(fmt.Sprintf(format, args...)).Error()
+}
+
+func PanicIfError(err error, msg string) {
+	if err != nil {
+		panic(errors.Wrap(err, msg))
+	}
 }
