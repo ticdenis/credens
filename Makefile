@@ -24,12 +24,16 @@ build-docker: ## It builds a Docker image for this project.
 	@mkdir -p var/builds/apps && mkdir -p var/dockers/db
 	@docker network inspect ${DOCKER_NETWORK} &>/dev/null || docker network create ${DOCKER_NETWORK}
 	@docker build -t ${DOCKER_IMAGE} .
+	@docker-compose build
 
 shell: ## It executes a shell inside a Docker container with optional "$args" arg.
 	@docker run --rm --network ${DOCKER_NETWORK} --name=${DOCKER_VOLUME} -v ${PWD}:/app -it ${args} ${DOCKER_IMAGE} bash
 
-shell-service: ## It executes a shell inside a Docker service container with optional "$name" arg.
+shell-service: ## It executes a shell inside a Docker service container with "$name" arg.
 	@docker exec -it ${name} bash
+
+exec-service: ## It executes a command inside a Docker service container with "$name" and "$cmd" args.
+	@docker exec -it ${name} ${args}
 
 install-deps: ## It install go dependencies with go.mod file.
 	@go mod vendor && go mod download

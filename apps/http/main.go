@@ -6,6 +6,7 @@ import (
 	"credens/apps/http/config"
 	"credens/apps/http/server"
 	"database/sql"
+	"fmt"
 	"github.com/defval/inject"
 	"github.com/go-sql-driver/mysql"
 )
@@ -33,15 +34,16 @@ func main() {
 	}
 }
 
-func getDB(environment *config.Environment) (*sql.DB, error) {
+func getDB(env *config.Environment) (*sql.DB, error) {
 	cfg := mysql.Config{
-		User:                 "credens",
-		Passwd:               "secret",
+		User:                 env.Sql.User,
+		Passwd:               env.Sql.Password,
 		Net:                  "tcp",
-		Addr:                 "credens_mysql:3306",
-		DBName:               "credens_mysql",
+		Addr:                 fmt.Sprintf("%s:%d", env.Sql.Host, env.Sql.Port),
+		DBName:               env.Sql.Database,
 		AllowNativePasswords: true,
 	}
+	fmt.Println(cfg.FormatDSN())
 
 	db, err := sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
