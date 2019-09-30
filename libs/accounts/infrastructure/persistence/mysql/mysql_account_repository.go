@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"credens/libs/accounts/domain"
+	db "credens/libs/shared/infrastructure/persistence"
 	"database/sql"
 	"errors"
 )
@@ -10,8 +11,8 @@ type MysqlAccountRepository struct {
 	db *sql.DB
 }
 
-func NewMysqlAccountRepository(db *sql.DB) *MysqlAccountRepository {
-	return &MysqlAccountRepository{db: db}
+func NewMysqlAccountRepository(sql db.SQLDb) *MysqlAccountRepository {
+	return &MysqlAccountRepository{db: sql.DB()}
 }
 
 func (repo MysqlAccountRepository) Add(account *domain.Account) (err error) {

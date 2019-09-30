@@ -3,12 +3,12 @@
 package main
 
 import (
+	"github.com/defval/inject"
+
+	"credens/libs/shared/infrastructure/persistence"
+
 	"credens/apps/http/config"
 	"credens/apps/http/server"
-	"database/sql"
-	"fmt"
-	"github.com/defval/inject"
-	"github.com/go-sql-driver/mysql"
 )
 
 func main() {
@@ -17,13 +17,7 @@ func main() {
 		panic(err)
 	}
 
-	db, err := getDB(env)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
-	container, err := config.BuildContainer(*env, db)
+	container, err := config.BuildContainer(*env)
 	if err != nil {
 		panic(err)
 	}
@@ -34,34 +28,27 @@ func main() {
 	}
 }
 
-func getDB(env *config.Environment) (*sql.DB, error) {
-	cfg := mysql.Config{
-		User:                 env.Sql.User,
-		Passwd:               env.Sql.Password,
-		Net:                  "tcp",
-		Addr:                 fmt.Sprintf("%s:%d", env.Sql.Host, env.Sql.Port),
-		DBName:               env.Sql.Database,
-		AllowNativePasswords: true,
-	}
-	fmt.Println(cfg.FormatDSN())
-
-	db, err := sql.Open("mysql", cfg.FormatDSN())
-	if err != nil {
-		return nil, err
-	}
-
-	if err := db.Ping(); err != nil {
-		return nil, err
-	}
-
-	return db, nil
-}
-
 func run(container *inject.Container, env config.Environment) error {
-	svc, err := server.NewServer(env, container)
+	err := runSQLDatabase(container)
 	if err != nil {
 		return err
 	}
 
+	return runHTTPServer(env, container)
+}
+
+func runSQLDatabase(container *inject.Container) error {
+	var sql db.SQLDb
+	if err := container.Extract(&sql); err != nil {
+		return err
+	}
+	return sql.Run()
+}
+
+func runHTTPServer(env config.Environment, container *inject.Container) error {
+	svc, err := server.NewServer(env, container)
+	if err != nil {
+		return err
+	}
 	return svc.Run(env.Port)
 }

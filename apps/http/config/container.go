@@ -1,7 +1,6 @@
 package config
 
 import (
-	"database/sql"
 	"github.com/defval/inject"
 
 	accountAppCreate "credens/libs/accounts/application/create"
@@ -13,17 +12,23 @@ import (
 	sharedInfraBus "credens/libs/shared/infrastructure/bus"
 	shareInfraLogging "credens/libs/shared/infrastructure/logging"
 	sharedInfraLoggingLogrus "credens/libs/shared/infrastructure/logging/logrus"
+	sharedInfraPersistence "credens/libs/shared/infrastructure/persistence"
 )
 
-func BuildContainer(env Environment, db *sql.DB) (*inject.Container, error) {
+func BuildContainer(env Environment) (*inject.Container, error) {
 	return inject.New(
+		inject.Provide(
+			NewMySQLDBWrapper(env),
+			inject.As(new(sharedInfraPersistence.SQLDb)),
+		),
+
 		inject.Provide(
 			sharedInfraLoggingLogrus.NewLogrusLogger,
 			inject.As(new(shareInfraLogging.Logger)),
 		),
 
 		inject.Provide(
-			accountInfraPersistence.NewMysqlAccountRepository(db),
+			accountInfraPersistence.NewMysqlAccountRepository,
 			inject.As(new(accountDomain.AccountRepository)),
 		),
 

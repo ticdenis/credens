@@ -12,6 +12,7 @@ type Environment struct {
 	Debug bool
 	Port  int
 	Sql   struct {
+		Driver   string
 		User     string
 		Password string
 		Host     string
@@ -44,6 +45,12 @@ func LoadEnvironment() (*Environment, error) {
 		return nil, err
 	}
 	environment.Port = port
+
+	sqlDriver, sqlDriverExists := os.LookupEnv("DB_DRIVER")
+	if !sqlDriverExists || sqlDriver == "" {
+		sqlDriver = "mysql"
+	}
+	environment.Sql.Driver = sqlDriver
 
 	sqlUser, sqlUserExists := os.LookupEnv("MYSQL_USER")
 	if !sqlUserExists || sqlUser == "" {
