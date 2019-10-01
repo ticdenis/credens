@@ -12,13 +12,13 @@ type Environment struct {
 	Debug bool
 	Port  int
 	Sql   struct {
-		Driver   string
-		User     string
-		Password string
-		Host     string
-		Port     int
-		Database string
-		Migrate  bool
+		Driver  string
+		Migrate bool
+		Url     string
+	}
+	Amqp struct {
+		Driver string
+		Url    string
 	}
 }
 
@@ -28,7 +28,23 @@ func LoadEnvironment() (*Environment, error) {
 	}
 
 	environment := new(Environment)
+	loaders := []func() error{
+		environment.loadAPPEnvs,
+		environment.loadHTTPEnvs,
+		environment.loadSQLEnvs,
+		environment.loadAMQPEnvs,
+	}
 
+	for _, fn := range loaders {
+		if err := fn(); err != nil {
+			return nil, err
+		}
+	}
+
+	return environment, nil
+}
+
+func (environment *Environment) loadAPPEnvs() error {
 	env, envExists := os.LookupEnv("APP_ENV")
 	if !envExists || env == "" {
 		env = "development"
@@ -37,57 +53,57 @@ func LoadEnvironment() (*Environment, error) {
 
 	debug, err := strconv.ParseBool(os.Getenv("APP_DEBUG"))
 	if err != nil {
-		return nil, err
+		debug = false
 	}
 	environment.Debug = debug
 
+	return nil
+}
+
+func (environment *Environment) loadHTTPEnvs() error {
 	port, err := strconv.Atoi(os.Getenv("HTTP_PORT"))
 	if err != nil {
-		return nil, err
+		return err
 	}
 	environment.Port = port
 
-	sqlDriver, sqlDriverExists := os.LookupEnv("DB_DRIVER")
+	return nil
+}
+
+func (environment *Environment) loadSQLEnvs() error {
+	sqlDriver, sqlDriverExists := os.LookupEnv("SQL_DRIVER")
 	if !sqlDriverExists || sqlDriver == "" {
-		sqlDriver = "mysql"
+		return errors.New("SQL_DRIVER env required!")
 	}
 	environment.Sql.Driver = sqlDriver
 
-	sqlUser, sqlUserExists := os.LookupEnv("MYSQL_USER")
-	if !sqlUserExists || sqlUser == "" {
-		return nil, errors.New("MYSQL_USER env required!")
-	}
-	environment.Sql.User = sqlUser
-
-	sqlPassword, sqlPasswordExists := os.LookupEnv("MYSQL_PASSWORD")
-	if !sqlPasswordExists || sqlPassword == "" {
-		return nil, errors.New("MYSQL_PASSWORD env required!")
-	}
-	environment.Sql.Password = sqlPassword
-
-	sqlHost, sqlHostExists := os.LookupEnv("MYSQL_HOST")
-	if !sqlHostExists || sqlHost == "" {
-		return nil, errors.New("MYSQL_HOST env required!")
-	}
-	environment.Sql.Host = sqlHost
-
-	sqlPort, err := strconv.Atoi(os.Getenv("MYSQL_PORT"))
-	if err != nil {
-		return nil, err
-	}
-	environment.Sql.Port = sqlPort
-
-	sqlDatabase, sqlDatabaseExists := os.LookupEnv("MYSQL_DATABASE")
-	if !sqlDatabaseExists || sqlDatabase == "" {
-		return nil, errors.New("MYSQL_DATABASE env required!")
-	}
-	environment.Sql.Database = sqlDatabase
-
-	sqlMigrate, err := strconv.ParseBool(os.Getenv("MYSQL_MIGRATE"))
+	sqlMigrate, err := strconv.ParseBool(os.Getenv("SQL_MIGRATE"))
 	if err != nil {
 		environment.Sql.Migrate = false
 	}
 	environment.Sql.Migrate = sqlMigrate
 
-	return environment, nil
+	sqlUrl, sqlUrlExists := os.LookupEnv("SQL_URL")
+	if !sqlUrlExists || sqlUrl == "" {
+		return errors.New("SQL_URL env required!")
+	}
+	environment.Sql.Url = sqlUrl
+
+	return nil
+}
+
+func (environment *Environment) loadAMQPEnvs() error {
+	amqpDriver, amqpDriverExists := os.LookupEnv("AMQP_DRIVER")
+	if !amqpDriverExists || amqpDriver == "" {
+		return errors.New("AMQP_DRIVER env required!")
+	}
+	environment.Amqp.Driver = amqpDriver
+
+	amqpUrl, amqpUrlExists := os.LookupEnv("AMQP_URL")
+	if !amqpUrlExists || amqpUrl == "" {
+		return errors.New("AMQP_URL env required!")
+	}
+	environment.Amqp.Url = amqpUrl
+
+	return nil
 }

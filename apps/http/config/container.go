@@ -3,6 +3,7 @@ package config
 import (
 	"credens/apps/http/migration/sql_migration"
 	"github.com/defval/inject"
+	_ "github.com/go-sql-driver/mysql" // It loads MySQL driver
 
 	accountAppCreate "credens/libs/accounts/application/create"
 	accountAppRead "credens/libs/accounts/application/read"
@@ -19,7 +20,7 @@ import (
 func BuildContainer(env Environment) (*inject.Container, error) {
 	return inject.New(
 		inject.Provide(
-			NewMySQLDBWrapper(env),
+			sharedInfraPersistence.NewSQLWrapper(env.Sql.Driver, env.Sql.Url),
 			inject.As(new(sharedInfraPersistence.SQLDb)),
 		),
 

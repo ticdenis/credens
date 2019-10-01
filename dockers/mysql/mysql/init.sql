@@ -1,6 +1,4 @@
-/* Please check that the values are the same as those described in the .env file */
-
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `credens_mysql` /* $MYSQL_DATABASE */ /*!40100 DEFAULT CHARACTER SET utf8_general_ci */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `credens_mysql` /* $MYSQL_DATABASE */ /*!40100 DEFAULT CHARACTER SET latin1 */;
 
 USE `credens_mysql`; /* $MYSQL_DATABASE */
 

@@ -21,6 +21,7 @@ down-services: ## It downs Docker services defined at docker-compose.yml file.
 	@docker-compose down
 
 build-docker: ## It builds a Docker image for this project.
+	@cp -n .env.example .env
 	@mkdir -p var/builds/apps && mkdir -p var/dockers/db
 	@docker network inspect ${DOCKER_NETWORK} &>/dev/null || docker network create ${DOCKER_NETWORK}
 	@docker build -t ${DOCKER_IMAGE} .

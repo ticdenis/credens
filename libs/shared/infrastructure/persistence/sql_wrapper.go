@@ -14,7 +14,7 @@ type (
 
 	SQLDBWrapper struct {
 		driverName string
-		dsn        string
+		url        string
 		db         *sql.DB
 	}
 )
@@ -32,7 +32,7 @@ func (wrapper *SQLDBWrapper) open() error {
 		return nil
 	}
 
-	db, err := sql.Open(wrapper.driverName, wrapper.dsn)
+	db, err := sql.Open(wrapper.driverName, wrapper.url)
 	if err != nil {
 		return err
 	}
@@ -56,6 +56,6 @@ func (wrapper *SQLDBWrapper) DB() *sql.DB {
 	return wrapper.db
 }
 
-func NewSQLWrapper(driverName, dsn string) *SQLDBWrapper {
-	return &SQLDBWrapper{driverName: driverName, dsn: dsn}
+func NewSQLWrapper(driverName, url string) *SQLDBWrapper {
+	return &SQLDBWrapper{driverName: driverName, url: url}
 }
