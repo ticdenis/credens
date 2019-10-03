@@ -1,11 +1,11 @@
 package domain
 
 import (
-	aggregate2 "credens/libs/shared/domain/aggregate"
+	"credens/libs/shared/domain/aggregate"
 )
 
 type Account struct {
-	aggregate2.AggregateRoot
+	aggregate.AggregateRoot
 	id       AccountId
 	name     AccountName
 	username AccountUsername

@@ -1,4 +1,4 @@
-package amqp
+package queue
 
 type CustomMessage struct {
 	Numerator    int

@@ -3,6 +3,7 @@
 package main
 
 import (
+	"credens/apps/http/amqp"
 	"credens/apps/http/config"
 	"credens/apps/http/runnable"
 	infra "credens/libs/shared/infrastructure"
@@ -30,8 +31,7 @@ func run(container *inject.Container, env config.Environment) error {
 		return errors.Wrap(err, "Error running SQL migrations!")
 	}
 
-	// amqp.RunWorker(env)
-	// amqp.RunConsumer(env)
+	amqp.RunPublisher(env)
 
 	if err := runnable.NewHttpServerRunnable().Run(container, env); err != nil {
 		return errors.Wrap(err, "Error running HTTP server!")
