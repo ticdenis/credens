@@ -1,38 +1,24 @@
 package create
 
 import (
-	bus2 "credens/libs/shared/domain/bus"
+	"credens/libs/shared/domain/bus"
 )
 
 var commandName = "create_account"
 
-type CreateAccountCommandData struct {
-	Id       string
-	Name     string
-	Username string
-	Password string
-}
-
-type CreateAccountCommand struct {
-	message bus2.Message
-	data    CreateAccountCommandData
-}
-
-func NewCreateAccountCommand(id string, name string, username string, password string) *CreateAccountCommand {
-	return &CreateAccountCommand{
-		*bus2.NewMessage(bus2.CommandMessageType),
-		CreateAccountCommandData{id, name, username, password},
+type (
+	CreateAccountCommand struct {
+		bus.BaseCommand
 	}
-}
 
-func (command CreateAccountCommand) Message() bus2.Message {
-	return command.message
-}
+	CreateAccountCommandData struct {
+		Id       string
+		Name     string
+		Username string
+		Password string
+	}
+)
 
-func (command CreateAccountCommand) CommandName() string {
-	return commandName
-}
-
-func (command CreateAccountCommand) Data() interface{} {
-	return command.data
+func NewCreateAccountCommand(data CreateAccountCommandData) *CreateAccountCommand {
+	return &CreateAccountCommand{*bus.NewCommand(commandName, data)}
 }

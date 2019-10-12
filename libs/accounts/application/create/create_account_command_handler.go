@@ -38,7 +38,5 @@ func (handler CreateAccountCommandHandler) Execute(command bus.Command) error {
 		return err
 	}
 
-	handler.eventPublisher.Publish(aggregate.PullDomainEvents()...)
-
-	return nil
+	return handler.eventPublisher.Publish(aggregate.PullDomainEvents()...)
 }

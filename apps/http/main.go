@@ -3,15 +3,17 @@
 package main
 
 import (
-	"credens/apps/http/amqp"
 	"credens/apps/http/config"
 	"credens/apps/http/runnable"
 	infra "credens/libs/shared/infrastructure"
 	"github.com/defval/inject"
 	"github.com/pkg/errors"
+	"log"
 )
 
 func main() {
+	log.Println("Starting HTTP app...")
+
 	env, err := config.LoadEnvironment()
 	infra.PanicIfError(err, "Error loading environment!")
 
@@ -30,8 +32,6 @@ func run(container *inject.Container, env config.Environment) error {
 	if err := runnable.NewSQLMigrationRunnable().Run(container, env); err != nil {
 		return errors.Wrap(err, "Error running SQL migrations!")
 	}
-
-	amqp.RunPublisher(env)
 
 	if err := runnable.NewHttpServerRunnable().Run(container, env); err != nil {
 		return errors.Wrap(err, "Error running HTTP server!")

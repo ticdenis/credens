@@ -32,7 +32,6 @@ func BuildContainer(env Environment) (*inject.Container, error) {
 			inject.As(new(sharedDomainBus.EventPublisher)),
 		),
 
-
 		inject.Provide(
 			accountAppCreate.NewCreateAccountCommandHandler,
 			inject.As(new(sharedDomainBus.CommandHandler)),

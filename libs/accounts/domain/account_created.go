@@ -5,14 +5,14 @@ import (
 )
 
 type (
+	AccountCreated struct {
+		bus.BaseEvent
+	}
+
 	AccountCreatedData struct {
 		Id       string
 		Name     string
 		Username string
-	}
-
-	AccountCreated struct {
-		bus.BaseEvent
 	}
 )
 

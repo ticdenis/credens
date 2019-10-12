@@ -24,7 +24,7 @@ func (handler *ReadAccountGetHandler) validate(context *gin.Context) *ResponseEr
 		return NewResponseError(errors.New("URL param 'id' is mandatory"))
 	}
 
-	handler.query = *read.NewReadAccountQuery(accountId)
+	handler.query = *read.NewReadAccountQuery(read.ReadAccountQueryData{Id: accountId})
 
 	return nil
 }

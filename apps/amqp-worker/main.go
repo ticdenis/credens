@@ -4,42 +4,32 @@ package main
 
 import (
 	"credens/apps/amqp-worker/config"
+	"credens/apps/amqp-worker/runnable"
 	infra "credens/libs/shared/infrastructure"
-	queue "credens/libs/shared/infrastructure/queue/data_to_test"
-	"credens/libs/shared/infrastructure/queue/rabbitmq"
-	"encoding/json"
 	"github.com/defval/inject"
+	"github.com/pkg/errors"
 	"log"
 )
 
 func main() {
+	log.Println("Starting amqp-worker app...")
+
 	env, err := config.LoadEnvironment()
 	infra.PanicIfError(err, "Error loading environment!")
 
 	container, err := config.BuildContainer(*env)
 	infra.PanicIfError(err, "Error building container!")
 
-	err = run(container, *env)
-	infra.PanicIfError(err, "Error running app!")
+	log.Println("Consuming...")
+	for {
+		err = run(container, *env)
+		infra.PanicIfError(err, "Error running app!")
+	}
 }
 
 func run(container *inject.Container, env config.Environment) error {
-	consumer := rabbitmq.NewRabbitMQConsumer(*rabbitmq.NewRabbitMQConfig(
-		env.Amqp.Url,
-		"default",
-	))
-
-	for {
-		go consume(consumer)
+	if err := runnable.NewAMQPConsumerRunnable().Run(container, env); err != nil {
+		return errors.Wrap(err, "Error running AMQP consumer!")
 	}
-}
-
-func consume(consumer *rabbitmq.RabbitMQConsumer) {
-	data, err := consumer.Consume("default")
-	if err != nil {
-		panic(err)
-	}
-	customMessage := new(queue.CustomMessage)
-	_ = json.Unmarshal(data, &customMessage)
-	log.Printf("Consumed: %+v\n", customMessage)
+	return nil
 }

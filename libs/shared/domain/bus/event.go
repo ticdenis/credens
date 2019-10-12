@@ -25,8 +25,7 @@ type (
 	}
 
 	EventPublisher interface {
-		Record(domainEvents ...Event)
-		Publish(domainEvents ...Event)
+		Publish(domainEvents ...Event) error
 	}
 
 	EventSubscriber interface {
@@ -37,6 +36,7 @@ type (
 
 func NewEvent(eventName string, aggregateId string, data interface{}) *BaseEvent {
 	return &BaseEvent{
+		eventName:   eventName,
 		message:     *NewMessage("event"),
 		aggregateId: aggregateId,
 		occurredOn:  time.Now().UTC().Unix(),

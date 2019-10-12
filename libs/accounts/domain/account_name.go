@@ -1,13 +1,13 @@
 package domain
 
 import (
-	value_object2 "credens/libs/shared/domain/value_object"
+	"credens/libs/shared/domain/value_object"
 )
 
 type AccountName struct {
-	value_object2.String
+	value_object.String
 }
 
 func NewAccountName(value string) AccountName {
-	return AccountName{String: *value_object2.NewString(value)}
+	return AccountName{String: *value_object.NewString(value)}
 }

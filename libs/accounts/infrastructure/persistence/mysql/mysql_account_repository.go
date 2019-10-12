@@ -8,11 +8,12 @@ import (
 )
 
 type MysqlAccountRepository struct {
-	db *sql.DB
+	db             *sql.DB
+	accountBuilder domain.AccountBuilder
 }
 
-func NewMysqlAccountRepository(sql db.SQLDb) *MysqlAccountRepository {
-	return &MysqlAccountRepository{db: sql.DB()}
+func NewMysqlAccountRepository(sql db.SQLDb, accountBuilder domain.AccountBuilder) *MysqlAccountRepository {
+	return &MysqlAccountRepository{db: sql.DB(), accountBuilder: accountBuilder}
 }
 
 func (repo MysqlAccountRepository) Add(account *domain.Account) error {
@@ -44,12 +45,12 @@ func (repo MysqlAccountRepository) Search(id domain.AccountId) (*domain.Account,
 			return nil, err
 		}
 
-		return domain.NewAccount(
-			domain.NewAccountId(data.id),
-			domain.NewAccountName(data.name),
-			domain.NewAccountUsername(data.username),
-			domain.NewAccountPassword(data.password),
-		), nil // TODO: Use a builder to avoid side effects like as record DomainEvents!
+		return repo.accountBuilder.Build(
+			data.id,
+			data.name,
+			data.username,
+			data.password,
+		)
 	}
 
 	return nil, errors.New("Account not found!")

@@ -38,10 +38,6 @@ func NewInMemoryEventPublisher() *InMemoryEventPublisher {
 	return &InMemoryEventPublisher{[]bus.Event{}}
 }
 
-func (publisher InMemoryEventPublisher) Record(domainEvents ...bus.Event) {
-	publisher.events = append(publisher.events, domainEvents...)
-}
-
 func (publisher InMemoryEventPublisher) Publish(domainEvents ...bus.Event) {
 	publisher.events = []bus.Event{}
 }

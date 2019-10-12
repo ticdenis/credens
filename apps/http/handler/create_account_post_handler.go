@@ -29,12 +29,12 @@ func (handler *CreateAccountPostHandler) validate(context *gin.Context) *Respons
 		return NewResponseError(err)
 	}
 
-	handler.command = *create.NewCreateAccountCommand(
-		json.Id,
-		json.Name,
-		json.Username,
-		json.Password,
-	)
+	handler.command = *create.NewCreateAccountCommand(create.CreateAccountCommandData{
+		Id:       json.Id,
+		Name:     json.Name,
+		Username: json.Username,
+		Password: json.Password,
+	})
 
 	return nil
 }
